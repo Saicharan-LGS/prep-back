@@ -1,0 +1,26 @@
+export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    byid VARCHAR(15),
+    status VARCHAR(1),
+    date DATE,
+    service VARCHAR(15),
+    product VARCHAR(15),
+    unit INT,
+    tracking_url VARCHAR(70),
+    recived BOOLEAN,
+    length VARCHAR(10),
+    width VARCHAR(10),
+    height VARCHAR(10),
+    weight VARCHAR(50),
+    fnsku VARCHAR(50),
+    fnsku_status BOOLEAN,
+    label VARCHAR(50),
+    label_status BOOLEAN,
+    fnsku_label_printed BOOLEAN,
+    invoice BOOLEAN,
+    amount FLOAT,
+    drop_off BOOLEAN,
+    payment_status BOOLEAN,
+    instructions VARCHAR
+  );
+`;
