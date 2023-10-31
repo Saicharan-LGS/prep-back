@@ -2,7 +2,8 @@ export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
     id INT AUTO_INCREMENT PRIMARY KEY,
     byid VARCHAR(15),
     status VARCHAR(1),
-    date DATE,
+    name VARCHAR(30),
+    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     service VARCHAR(15),
     product VARCHAR(15),
     unit INT,
@@ -21,6 +22,6 @@ export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
     amount FLOAT,
     drop_off BOOLEAN,
     payment_status BOOLEAN,
-    instructions VARCHAR
+    instructions VARCHAR(100)
   );
 `;
