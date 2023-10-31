@@ -103,59 +103,43 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+export const customerorder = async (req, res, next) => {
+  try {
+    console.log(req.body);
+    const { service, product, unit, tracking_url } = req.body;
+    const req_id = req.user.id;
+    const name = req.user.name;
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "../uploads");
-  },
-  filename: function (req, file, cb) {
-    const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    cb(null, "video_" + uniqueSuffix + path.extname(file.originalname));
-  },
-});
+    const fnskuFiles = req.files;
 
-const upload = multer({
-  storage: storage,
-});
+    const fnskufile = fnskuFiles[0].path; 
+    const boxlabel = fnskuFiles[1].path;
 
-export const customerorder = CatchAsyncError(
-  upload.single("fnsku"),
-  async (req, res, next) => {
-    try {
-      const { service, product, unit, tracking_url } = req.body;
-      const req_id = req.user.id;
-      const name = req.user.name;
-
-      // Assuming 'boxlabel' is defined somewhere in your code
-      const boxlabel = "your_box_label_value";
-
-      const fnskufile = req.file.path; // Assuming 'req.file' contains the file information
-
-      connection.query(
-        "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-        [
-          req_id,
-          name,
-          service,
-          product,
-          unit,
-          tracking_url,
-          fnskufile, // Assuming this is the path to the file
-          boxlabel,
-        ],
-        (error) => {
-          if (error) {
-            return next(new ErrorHandler(error.message, 500));
-          }
-
-          res.status(201).json({
-            success: true,
-            message: "Order Placed",
-          });
+    console.log(fnskufile);
+    connection.query(
+      "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+      [
+        req_id,
+        name,
+        service,
+        product,
+        unit,
+        tracking_url,
+        fnskufile, // Assuming this is the path to the file
+        boxlabel,
+      ],
+      (error) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500));
         }
-      );
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
-    }
+        res.status(201).json({
+          success: true,
+          message: "Order Placed",
+        });
+        console.log("order posted");
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
   }
-);
+};
