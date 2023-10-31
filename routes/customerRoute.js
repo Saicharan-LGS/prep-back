@@ -10,6 +10,7 @@ import { isAuthenticatedCustomer } from "../middleware/auth.js";
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
+    console.log("dest called");
     cb(null, "./upload");
   },
   filename: (req, file, cb) => {
@@ -22,6 +23,24 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const uploadSingleOrMultipleFiles = (req, res, next) => {
+  if (req.files) {
+    const fileFields = req.files;
+    if (fileFields["fnskuSend"] && fileFields["labelSend"]) {
+      return upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }])(
+        req,
+        res,
+        next
+      );
+    } else if (fileFields["fnskuSend"]) {
+      return upload.single("fnskuSend")(req, res, next);
+    } else if (fileFields["labelSend"]) {
+      return upload.single("labelSend")(req, res, next);
+    }
+  }
+  next();
+};
+
 export const customerRouter = express.Router();
 
 customerRouter.post("/registration", customerRegistration);
@@ -31,6 +50,6 @@ customerRouter.post("/login", customerLogin);
 customerRouter.post(
   "/customerorder",
   isAuthenticatedCustomer,
-  upload.array(["fnskuSend", "boxLabelSend"]),
+  uploadSingleOrMultipleFiles,
   customerorder
 );

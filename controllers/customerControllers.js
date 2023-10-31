@@ -103,19 +103,17 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
 export const customerorder = async (req, res, next) => {
   try {
-    console.log(req.body);
     const { service, product, unit, tracking_url } = req.body;
     const req_id = req.user.id;
     const name = req.user.name;
 
     const fnskuFiles = req.files;
-
-    const fnskufile = fnskuFiles[0].path; 
-    const boxlabel = fnskuFiles[1].path;
-
-    console.log(fnskufile);
+    const fnskufile = fnskuFiles["fnskuSend"][0].path; // Assuming "fnskuSend" is the field name for the first file
+    const boxlabel = fnskuFiles["labelSend"][0].path; // Assuming "labelSend" is the field name for the second file
+    console.log(fnskufile,boxlabel)
     connection.query(
       "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
       [
@@ -125,7 +123,7 @@ export const customerorder = async (req, res, next) => {
         product,
         unit,
         tracking_url,
-        fnskufile, // Assuming this is the path to the file
+        fnskufile,
         boxlabel,
       ],
       (error) => {
@@ -136,7 +134,7 @@ export const customerorder = async (req, res, next) => {
           success: true,
           message: "Order Placed",
         });
-        console.log("order posted");
+        console.log("Order posted");
       }
     );
   } catch (error) {
