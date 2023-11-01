@@ -3,7 +3,7 @@ export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
     byid VARCHAR(15),
     status VARCHAR(1),
     name VARCHAR(30),
-    date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    date VARCHAR(15),
     service VARCHAR(15),
     product VARCHAR(15),
     unit INT,

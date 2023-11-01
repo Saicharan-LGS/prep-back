@@ -11,7 +11,7 @@ dotenv.config();
 
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, date } = req.body;
 
     // Check if the email already exists in the database
     connection.query(
@@ -31,11 +31,10 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           if (err) {
             return next(new ErrorHandler(err.message, 500));
           }
-
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO customers (name, email, password) VALUES (?, ?, ?)",
-            [name, email, hashedPassword],
+            "INSERT INTO customers (name, email, password,date) VALUES (?, ?, ?,?)",
+            [name, email, hashedPassword, date],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
@@ -89,7 +88,7 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 
         // Create a JWT token
         const token = jwt.sign({ email: user.email }, SECRET_KEY, {
-          expiresIn: "1h",
+          expiresIn: "78h",
         });
 
         res.status(200).json({
@@ -106,22 +105,51 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 
 export const customerorder = async (req, res, next) => {
   try {
-    const { service, product, unit, tracking_url } = req.body;
+    const { service, product, unit, tracking_url, date } = req.body;
     const req_id = req.user.id;
     const name = req.user.name;
 
     const fnskuFiles = req.files;
-
-    const fnskufile = fnskuFiles["fnskuSend"]
+    const fnskuFile = fnskuFiles["fnskuSend"]
       ? fnskuFiles["fnskuSend"][0].path
       : undefined;
     const boxlabel = fnskuFiles["labelSend"]
       ? fnskuFiles["labelSend"][0].path
       : undefined;
 
+    let fnskuStatus = false;
+    let labelStatus = false;
+
+    if (fnskuFile !== undefined && boxlabel !== undefined) {
+      fnskuStatus = true;
+      labelStatus = true;
+    } else if (fnskuFile === undefined && boxlabel === undefined) {
+      fnskuStatus = false;
+      labelStatus = false;
+    } else if (fnskuFile === undefined) {
+      fnskuStatus = false;
+      labelStatus = true;
+    } else {
+      fnskuStatus = true;
+      labelStatus = false;
+    }
+
     connection.query(
-      "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [req_id, name, service, product, unit, tracking_url, fnskufile, boxlabel],
+      "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
+      [
+        req_id,
+        name,
+        service,
+        product,
+        unit,
+        tracking_url,
+        fnskuFile,
+        boxlabel,
+        date,
+        0,
+        fnskuStatus,
+        labelStatus,
+      ],
       (error) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));

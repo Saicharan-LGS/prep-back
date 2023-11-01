@@ -22,4 +22,4 @@ const table = `
         ip VARCHAR(20),
         status BOOLEAN,
       );
-    `;
+`;
