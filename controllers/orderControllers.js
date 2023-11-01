@@ -1,5 +1,7 @@
 import CatchAsyncError from "../middleware/catchAsyncError.js";
 import { connection } from "../utils/db.js";
+import ErrorHandler from "../utils/ErrorHandler.js";
+
 export const AdminUpdateOrder = CatchAsyncError(async (req, res) => {
   console.log("called");
   const orderId = req.params.id;
@@ -63,55 +65,106 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
   });
 });
 
-
 export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
-    try {
-      const { length, width, height, weight } = req.body;
-      const req_id = req.user.id;
-      const id = req.params.id; // Assuming you get the ID from the request parameters
-  
-      // Update the record in the order_table
-      connection.query(
-        "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ? WHERE id = ?",
-        [req_id, length, width, height, weight, id],
-        (error) => {
-          if (error) {
-            return next(new ErrorHandler(error.message, 500));
-          }
-  
-          res.status(200).json({
-            success: true,
-            message: "Dimension Updated successfully",
-          });
+  try {
+    const { length, width, height, weight } = req.body;
+    const req_id = req.user.id;
+    const id = req.params.id; // Assuming you get the ID from the request parameters
+
+    // Update the record in the order_table
+    connection.query(
+      "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ? WHERE id = ?",
+      [req_id, length, width, height, weight, id],
+      (error) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500));
         }
-      );
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  });
-  
-  export const dimensionOrderList = CatchAsyncError(async (req, res, next) => {
-    try {
-      connection.query(
-        "SELECT * FROM order_table WHERE status= 2",
-        async (error, results) => {
-          if (error) {
-            return next(new ErrorHandler(error.message, 500)); // Handle database query error
-          }
-  
-          if (results.length === 0) {
-            return next(new ErrorHandler("No Orders", 400));
-          }
-          const data = results;
-  
-          res.status(200).json({
-            success: true,
-            message: "Orders",
-            data,
-          });
+
+        res.status(200).json({
+          success: true,
+          message: "Dimension Updated successfully",
+        });
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+export const dimensionOrderList = CatchAsyncError(async (req, res, next) => {
+  try {
+    connection.query(
+      "SELECT * FROM order_table WHERE status= 2",
+      async (error, results) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
-      );
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
-    }
-  });
+
+        if (results.length === 0) {
+          return next(new ErrorHandler("No Orders", 400));
+        }
+        const data = results;
+
+        res.status(200).json({
+          success: true,
+          message: "Orders",
+          data,
+        });
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+export const labelOrderList = CatchAsyncError(async (req, res, next) => {
+  try {
+    connection.query(
+      "SELECT * FROM order_table WHERE status= 3",
+      async (error, results) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500)); // Handle database query error
+        }
+
+        if (results.length === 0) {
+          return next(new ErrorHandler("No Orders", 400));
+        }
+        const data = results;
+
+        res.status(200).json({
+          success: true,
+          message: "label Orders",
+          data,
+        });
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+export const labelUpdate = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { status } = req.body;
+    const id = req.params.id;
+    console.log(id);
+    const req_id = req.user.id;
+
+    connection.query(
+      "UPDATE order_table SET byid=?,fnsku_label_printed = ? WHERE id = ?",
+      [req_id, status, id],
+      (error) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500));
+        }
+
+        res.status(200).json({
+          success: true,
+          message: "Dimension Updated successfully",
+        });
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});

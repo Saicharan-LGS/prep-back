@@ -5,8 +5,12 @@ import jwt from "jsonwebtoken";
 
 // authenticated user
 export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
-  const access_token =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6Imdhbmd1bGEuc2FpY2hhcmFuOTg0QGdtYWlsLmNvbSIsImlhdCI6MTY5ODc0MTI4MCwiZXhwIjoxNjk4NzQ0ODgwfQ.oOn6iEtyb7OZ6LsH7dtUyD1r3Gk_nZ6fReXGczCsz-I";
+  const authorizationHeader = req.headers.authorization;
+  if (!authorizationHeader) {
+    return next(new ErrorHandler("Please provide an access token", 400));
+  }
+  const access_token = authorizationHeader.split(" ")[1];
+  console.log(access_token);
   if (!access_token) {
     return next(new ErrorHandler("Please login to access this resource", 400));
   }
@@ -59,7 +63,7 @@ export const authorizeRoles = (...roles) => {
 export const isAuthenticatedCustomer = CatchAsyncError(
   async (req, res, next) => {
     console.log("auth called");
-    
+
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
       return next(new ErrorHandler("Please provide an access token", 400));
