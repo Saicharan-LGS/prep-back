@@ -3,7 +3,7 @@ import { connection } from "../utils/db.js";
 import ErrorHandler from "../utils/ErrorHandler.js";
 
 export const AdminUpdateOrder = CatchAsyncError(async (req, res) => {
-  console.log("called");
+  console.log(" update called");
   const orderId = req.params.id;
   console.log(orderId);
   const { status } = req.body;
