@@ -111,21 +111,17 @@ export const customerorder = async (req, res, next) => {
     const name = req.user.name;
 
     const fnskuFiles = req.files;
-    const fnskufile = fnskuFiles["fnskuSend"][0].path; // Assuming "fnskuSend" is the field name for the first file
-    const boxlabel = fnskuFiles["labelSend"][0].path; // Assuming "labelSend" is the field name for the second file
-    console.log(fnskufile,boxlabel)
+
+    const fnskufile = fnskuFiles["fnskuSend"]
+      ? fnskuFiles["fnskuSend"][0].path
+      : undefined;
+    const boxlabel = fnskuFiles["labelSend"]
+      ? fnskuFiles["labelSend"][0].path
+      : undefined;
+
     connection.query(
       "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
-      [
-        req_id,
-        name,
-        service,
-        product,
-        unit,
-        tracking_url,
-        fnskufile,
-        boxlabel,
-      ],
+      [req_id, name, service, product, unit, tracking_url, fnskufile, boxlabel],
       (error) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
