@@ -11,7 +11,7 @@ dotenv.config();
 
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
-    const { name, email, password, date } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if the email already exists in the database
     connection.query(
@@ -33,8 +33,8 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           }
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO customers (name, email, password,date) VALUES (?, ?, ?,?)",
-            [name, email, hashedPassword, date],
+            "INSERT INTO customers (name, email, password) VALUES ( ?, ?,?)",
+            [name, email, hashedPassword],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
