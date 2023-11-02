@@ -3,7 +3,7 @@ import { connection } from "../utils/db.js";
 import { staffTable } from "./staffTable.js";
 import { productTable } from "./productTable.js";
 import { orderTable } from "./orderTable.js";
-
+import { TransactionTable } from "./transactionTable.js";
 const tablesToCreate = [
   {
     tableName: "createCustomerTable",
@@ -21,6 +21,10 @@ const tablesToCreate = [
     tableName: "orderTable",
     sql: orderTable,
   },
+  {
+    tableName:"transactionTable",
+    sql:TransactionTable,
+  }
 ];
 
 export const createTables = () => {

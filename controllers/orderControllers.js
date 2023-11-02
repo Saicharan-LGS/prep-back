@@ -150,8 +150,8 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
     const req_id = req.user.id;
 
     connection.query(
-      "UPDATE order_table SET byid=?,fnsku_label_printed = ? WHERE id = ?",
-      [req_id, status, id],
+      "UPDATE order_table SET byid=?,fnsku_label_printed = ?,status=? WHERE id = ?",
+      [req_id, status, 4, id],
       (error) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
@@ -201,8 +201,8 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
           product = ?,
           unit = ?,
           tracking_url = ? 
-          ${fnskuFile !== undefined ? ', fnsku = ?, fnsku_status = ?' : ''}
-          ${boxlabel !== undefined ? ', label = ?, label_status = ?' : ''}
+          ${fnskuFile !== undefined ? ", fnsku = ?, fnsku_status = ?" : ""}
+          ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
           WHERE id = ?`,
         [
           servicesReq,
@@ -232,6 +232,31 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
     }
   }
 );
+
+export const AmountUpdate = CatchAsyncError(async (req, res, next) => {
+  try {
+    const { amount } = req.body;
+    const id = req.params.id;
+    console.log(id);
+    const req_id = req.user.id;
+
+    connection.query(
+      "UPDATE order_table SET byid=?,amount = ?,status=?,invoice=? WHERE id = ?",
+      [req_id, amount, 5, true, id],
+      (error) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500));
+        }
+        res.status(200).json({
+          success: true,
+          message: "Dimension Updated successfully",
+        });
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
 
 // export const AdminUpdateOrderDetail = CatchAsyncError(async (req, res) => {
 //   console.log("Update order called");

@@ -20,6 +20,6 @@ const table = `
         mobile_number VARCHAR(15),
         data_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         ip VARCHAR(20),
-        status BOOLEAN,
+        status BOOLEAN
       );
 `;

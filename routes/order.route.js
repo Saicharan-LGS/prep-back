@@ -8,6 +8,7 @@ import {
   labelOrderList,
   labelUpdate,
   AdminUpdateOrderDetail,
+  AmountUpdate,
 } from "../controllers/orderControllers.js";
 import { isAuthenticated } from "../middleware/auth.js";
 export const orderRouter = express.Router();
@@ -19,3 +20,4 @@ orderRouter.put("/dimensionupdate/:id", isAuthenticated, dimensionUpdate);
 orderRouter.get("/dimensionorderlist", dimensionOrderList);
 orderRouter.get("/labelorderlist", labelOrderList);
 orderRouter.put("/labelorderlist/:id", isAuthenticated, labelUpdate);
+orderRouter.put("/amountUpdate/:id", isAuthenticated, AmountUpdate)
