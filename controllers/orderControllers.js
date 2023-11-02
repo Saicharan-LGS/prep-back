@@ -168,3 +168,130 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
+export const AdminUpdateOrderDetail = CatchAsyncError(
+  async (req, res, next) => {
+    console.log("Update order called");
+    try {
+      const orderId = req.params.id; // Get the order ID from URL parameters
+      console.log(orderId);
+      const { customerName, servicesReq, productName, units, trackingUrl } =
+        req.body;
+      const fnskuFiles = req.files;
+      const fnskuFile = fnskuFiles["fnskuSend"]
+        ? fnskuFiles["fnskuSend"][0].filename
+        : undefined;
+      const boxlabel = fnskuFiles["labelSend"]
+        ? fnskuFiles["labelSend"][0].filename
+        : undefined;
+      let fnskuStatus = false;
+      let labelStatus = false;
+
+      if (fnskuFile !== undefined) {
+        fnskuStatus = true;
+      }
+
+      if (boxlabel !== undefined) {
+        labelStatus = true;
+      }
+
+      console.log(fnskuFile, boxlabel);
+      connection.query(
+        `UPDATE order_table SET 
+          service = ?,
+          product = ?,
+          unit = ?,
+          tracking_url = ? 
+          ${fnskuFile !== undefined ? ', fnsku = ?, fnsku_status = ?' : ''}
+          ${boxlabel !== undefined ? ', label = ?, label_status = ?' : ''}
+          WHERE id = ?`,
+        [
+          servicesReq,
+          productName,
+          units,
+          trackingUrl,
+          ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
+          ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
+          Number(orderId), // Ensure orderId is treated as a numeric value
+        ],
+        (error, results) => {
+          if (error) {
+            return next(new ErrorHandler(error.message, 500));
+          }
+          if (results.affectedRows === 0) {
+            return next(new ErrorHandler("Order not found", 404));
+          }
+          res.status(200).json({
+            success: true,
+            message: "Order updated",
+          });
+          console.log("Order updated");
+        }
+      );
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
+
+// export const AdminUpdateOrderDetail = CatchAsyncError(async (req, res) => {
+//   console.log("Update order called");
+//   try {
+//     const orderId = req.params.id; // Get the order ID from URL parameters
+//     const { customerName, servicesReq, productName, units, trackingUrl } =
+//       req.body;
+//     const fnskuFiles = req.files;
+//     const fnskuFile = fnskuFiles["fnskuSend"]
+//       ? fnskuFiles["fnskuSend"][0].filename
+//       : undefined;
+//     const boxlabel = fnskuFiles["labelSend"]
+//       ? fnskuFiles["labelSend"][0].filename
+//       : undefined;
+//     let fnskuStatus = false;
+//     let labelStatus = false;
+//     if (fnskuFile !== undefined && boxlabel !== undefined) {
+//       fnskuStatus = true;
+//       labelStatus = true;
+//     } else if (fnskuFile === undefined && boxlabel === undefined) {
+//       fnskuStatus = false;
+//       labelStatus = false;
+//       console.log("false");
+//     } else if (fnskuFile === undefined) {
+//       fnskuStatus = false;
+//       labelStatus = true;
+//     } else {
+//       fnskuStatus = true;
+//       labelStatus = false;
+//     }
+//     console.log(fnskuFile,boxlabel)
+//     connection.query(
+//       "UPDATE order_table SET service=?, product=?, unit=?, tracking_url=?, fnsku=?, label=?,  fnsku_status=?, label_status=? WHERE id=?",
+//       [
+//         servicesReq,
+//         productName,
+//         units,
+//         trackingUrl,
+//         fnskuFile,
+//         boxlabel,
+//         fnskuStatus,
+//         labelStatus,
+//         orderId,
+//       ],
+//       (error, results) => {
+//         if (error) {
+//           return next(new ErrorHandler(error.message, 500));
+//         }
+//         if (results.affectedRows === 0) {
+//           return next(new ErrorHandler("Order not found", 404));
+//         }
+//         res.status(200).json({
+//           success: true,
+//           message: "Order updated",
+//         });
+//         console.log("Order updated");
+//       }
+//     );
+//   } catch (error) {
+//     return next(new ErrorHandler(error.message, 400));
+//   }
+// });

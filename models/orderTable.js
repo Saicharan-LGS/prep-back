@@ -5,7 +5,7 @@ export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
     name VARCHAR(30),
     date VARCHAR(15),
     service VARCHAR(15),
-    product VARCHAR(15),
+    product VARCHAR(35),
     unit INT,
     tracking_url VARCHAR(70),
     recived BOOLEAN,

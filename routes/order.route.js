@@ -7,6 +7,7 @@ import {
   dimensionUpdate,
   labelOrderList,
   labelUpdate,
+  AdminUpdateOrderDetail,
 } from "../controllers/orderControllers.js";
 import { isAuthenticated } from "../middleware/auth.js";
 export const orderRouter = express.Router();

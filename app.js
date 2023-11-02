@@ -9,6 +9,7 @@ app.use(express.json());
 app.use(express.static("upload"));
 app.use(cors());
 import bodyParser from "body-parser";
+import ErrorMiddleware from "./middleware/error.js";
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -21,3 +22,5 @@ app.get("/test", (req, res, next) => {
     message: "API is working",
   });
 });
+
+app.use(ErrorMiddleware)

@@ -104,17 +104,19 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 });
 
 export const customerorder = async (req, res, next) => {
+  console.log("custiomer caled");
   try {
-    const { service, product, unit, tracking_url, date } = req.body;
+    const { service, product, units, tracking_url, date } = req.body;
+    console.log(units);
     const req_id = req.user.id;
     const name = req.user.name;
 
     const fnskuFiles = req.files;
     const fnskuFile = fnskuFiles["fnskuSend"]
-      ? fnskuFiles["fnskuSend"][0].path
+      ? fnskuFiles["fnskuSend"][0].filename
       : undefined;
     const boxlabel = fnskuFiles["labelSend"]
-      ? fnskuFiles["labelSend"][0].path
+      ? fnskuFiles["labelSend"][0].filename
       : undefined;
 
     let fnskuStatus = false;
@@ -126,6 +128,7 @@ export const customerorder = async (req, res, next) => {
     } else if (fnskuFile === undefined && boxlabel === undefined) {
       fnskuStatus = false;
       labelStatus = false;
+      console.log("false");
     } else if (fnskuFile === undefined) {
       fnskuStatus = false;
       labelStatus = true;
@@ -141,7 +144,7 @@ export const customerorder = async (req, res, next) => {
         name,
         service,
         product,
-        unit,
+        units,
         tracking_url,
         fnskuFile,
         boxlabel,
@@ -165,3 +168,17 @@ export const customerorder = async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 };
+
+
+export const customerData = CatchAsyncError(async (req, res, next) => {
+  try {
+    const name = req.user.name;
+    res.status(201).json({
+      success: true,
+      name,
+      message: "Customer Details",
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
