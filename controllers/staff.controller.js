@@ -99,3 +99,18 @@ export const staffLogin = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
+export const staffData = CatchAsyncError(async (req, res, next) => {
+  try {
+    const name = req.user.name;
+    const role = req.user.role;
+    res.status(201).json({
+      success: true,
+      name,
+      role,
+      message: "Staff Details",
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
