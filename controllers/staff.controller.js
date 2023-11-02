@@ -10,8 +10,7 @@ dotenv.config();
 export const staffRegistration = CatchAsyncError(async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
-
-    // Check if the email already exists in the database
+    console.log("regi called", req.body);
     connection.query(
       "SELECT * FROM staff_table WHERE email = ?",
       [email],
@@ -19,7 +18,6 @@ export const staffRegistration = CatchAsyncError(async (req, res, next) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
-
         if (results.length > 0) {
           return next(new ErrorHandler("Email already exists", 400));
         }
