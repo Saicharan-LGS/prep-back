@@ -130,7 +130,6 @@ export const labelOrderList = CatchAsyncError(async (req, res, next) => {
           return next(new ErrorHandler("No Orders", 400));
         }
         const data = results;
-
         res.status(200).json({
           success: true,
           message: "label Orders",
