@@ -197,6 +197,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
       console.log(fnskuFile, boxlabel);
       connection.query(
         `UPDATE order_table SET 
+           name=?,
           service = ?,
           product = ?,
           unit = ?,
@@ -205,6 +206,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
           ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
           WHERE id = ?`,
         [
+          customerName,
           servicesReq,
           productName,
           units,
