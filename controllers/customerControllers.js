@@ -106,7 +106,8 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 export const customerorder = async (req, res, next) => {
   console.log("custiomer caled");
   try {
-    const { service, product, units, tracking_url, date } = req.body;
+    const { service, product, units, tracking_url, date, customer_id } =
+      req.body;
     console.log(units);
     const req_id = req.user.id;
     const name = req.user.name;
@@ -138,9 +139,10 @@ export const customerorder = async (req, res, next) => {
     }
 
     connection.query(
-      "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
+      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
       [
         req_id,
+        customer_id,
         name,
         service,
         product,
@@ -169,16 +171,17 @@ export const customerorder = async (req, res, next) => {
   }
 };
 
-
 export const customerData = CatchAsyncError(async (req, res, next) => {
   try {
     const name = req.user.name;
+    const id = req.user.id;
     res.status(201).json({
       success: true,
       name,
+      id,
       message: "Customer Details",
     });
   } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
-  }
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
