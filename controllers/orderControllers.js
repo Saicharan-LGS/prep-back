@@ -66,15 +66,16 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
 });
 
 export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
+  console.log("dim called")
   try {
     const { length, width, height, weight } = req.body;
     const req_id = req.user.id;
     const id = req.params.id; // Assuming you get the ID from the request parameters
-
-    // Update the record in the order_table
+    console.log(req.body)
+    // Update the record in  the order_table
     connection.query(
-      "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ? WHERE id = ?",
-      [req_id, length, width, height, weight, id],
+      "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ?,status=? WHERE id = ?",
+      [req_id, length, width, height, weight,3, id],
       (error) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
@@ -118,14 +119,16 @@ export const dimensionOrderList = CatchAsyncError(async (req, res, next) => {
 });
 
 export const labelOrderList = CatchAsyncError(async (req, res, next) => {
+  console.log("clled")
   try {
     connection.query(
       "SELECT * FROM order_table WHERE status= 3",
       async (error, results) => {
         if (error) {
+          console.log(error)
           return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
-
+        console.log(results)
         if (results.length === 0) {
           return next(new ErrorHandler("No Orders", 400));
         }
@@ -176,6 +179,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
       console.log(orderId);
       const { customerName, servicesReq, productName, units, trackingUrl } =
         req.body;
+        console.log(req.body)
       const fnskuFiles = req.files;
       const fnskuFile = fnskuFiles["fnskuSend"]
         ? fnskuFiles["fnskuSend"][0].filename
