@@ -108,7 +108,7 @@ export const customerorder = async (req, res, next) => {
   try {
     const { service, product, units, tracking_url, date, customer_id } =
       req.body;
-    console.log(units);
+    console.log(req.body);
     const req_id = req.user.id;
     const name = req.user.name;
     const fnskuFiles = req.files;
@@ -135,7 +135,7 @@ export const customerorder = async (req, res, next) => {
       labelStatus = false;
     }
     connection.query(
-      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
+      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?,?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
       [
         req_id,
         customer_id,
@@ -153,7 +153,7 @@ export const customerorder = async (req, res, next) => {
       ],
       (error) => {
         if (error) {
-          console.log("erroe")
+          console.log(error)
           return next(new ErrorHandler(error.message, 500));
         }
         res.status(201).json({
