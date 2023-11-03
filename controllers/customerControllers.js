@@ -12,7 +12,6 @@ dotenv.config();
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    const { name, email, password } = req.body;
 
     // Check if the email already exists in the database
     connection.query(
