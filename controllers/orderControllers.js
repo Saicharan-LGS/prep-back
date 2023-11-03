@@ -170,13 +170,13 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
 
 export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
-    console.log("Update order called");
     try {
       const orderId = req.params.id; // Get the order ID from URL parameters
-      console.log(orderId);
       const { customerName, servicesReq, productName, units, trackingUrl } =
         req.body;
+      console.log(req.body.fnskuSend);
       const fnskuFiles = req.files;
+      console.log(fnskuFiles, req.body);
       const fnskuFile = fnskuFiles["fnskuSend"]
         ? fnskuFiles["fnskuSend"][0].filename
         : undefined;

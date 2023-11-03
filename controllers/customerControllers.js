@@ -11,7 +11,7 @@ dotenv.config();
 
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
-    const { name, email, password, date } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if the email already exists in the database
     connection.query(
@@ -33,8 +33,8 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           }
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO customers (name, email, password,date) VALUES (?, ?, ?,?)",
-            [name, email, hashedPassword, date],
+            "INSERT INTO customers (name, email, password) VALUES (?,  ?,?)",
+            [name, email, hashedPassword],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
@@ -104,13 +104,12 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 });
 
 export const customerorder = async (req, res, next) => {
-  console.log("custiomer caled");
+  console.log("customer caled");
   try {
     const { service, product, units, tracking_url, date } = req.body;
     console.log(units);
     const req_id = req.user.id;
     const name = req.user.name;
-
     const fnskuFiles = req.files;
     const fnskuFile = fnskuFiles["fnskuSend"]
       ? fnskuFiles["fnskuSend"][0].filename
@@ -118,10 +117,8 @@ export const customerorder = async (req, res, next) => {
     const boxlabel = fnskuFiles["labelSend"]
       ? fnskuFiles["labelSend"][0].filename
       : undefined;
-
     let fnskuStatus = false;
     let labelStatus = false;
-
     if (fnskuFile !== undefined && boxlabel !== undefined) {
       fnskuStatus = true;
       labelStatus = true;
@@ -136,9 +133,8 @@ export const customerorder = async (req, res, next) => {
       fnskuStatus = true;
       labelStatus = false;
     }
-
     connection.query(
-      "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
+      "INSERT INTO order_table (byid, name, service, product, unit, tracking_url, fnsku, label, date, status, fnsku_status, label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?, ?, ?, ?)",
       [
         req_id,
         name,
@@ -155,6 +151,7 @@ export const customerorder = async (req, res, next) => {
       ],
       (error) => {
         if (error) {
+          console.log("erroe")
           return next(new ErrorHandler(error.message, 500));
         }
         res.status(201).json({
@@ -169,7 +166,6 @@ export const customerorder = async (req, res, next) => {
   }
 };
 
-
 export const customerData = CatchAsyncError(async (req, res, next) => {
   try {
     const name = req.user.name;
@@ -178,7 +174,8 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
       name,
       message: "Customer Details",
     });
+    console.log(name);
   } catch (error) {
-    return next(new ErrorHandler(error.message, 400));
-  }
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
