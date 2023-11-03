@@ -18,6 +18,7 @@ export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
     label VARCHAR(50),
     label_status BOOLEAN,
     fnsku_label_printed BOOLEAN,
+    customer_id INT,
     invoice BOOLEAN,
     amount FLOAT,
     drop_off BOOLEAN,
