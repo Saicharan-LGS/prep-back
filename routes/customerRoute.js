@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
     cb(
       null,
-      file.fieldname + "-" + uniqueSuffix + path.extname(file.originalname)
+      file.fieldname + "sai" + uniqueSuffix + path.extname(file.originalname)
     );
   },
 });
@@ -39,6 +39,8 @@ customerRouter.post(
 
 customerRouter.get("/customerdata", isAuthenticatedCustomer, customerData);
 
-orderRouter.put("/updateOrderDetails/:id",
-upload.fields([{name:"fnskuSend"},{name:"labelSend"}])
-,AdminUpdateOrderDetail)
+orderRouter.put(
+  "/updateOrderDetails/:id",
+  upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
+  AdminUpdateOrderDetail
+);

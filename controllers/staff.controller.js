@@ -92,6 +92,7 @@ export const staffLogin = CatchAsyncError(async (req, res, next) => {
           success: true,
           message: "Login successful",
           token,
+          role
         });
       }
     );
