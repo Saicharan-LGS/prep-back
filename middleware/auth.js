@@ -10,7 +10,6 @@ export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler("Please provide an access token", 400));
   }
   const access_token = authorizationHeader.split(" ")[1];
-  console.log(access_token);
   if (!access_token) {
     return next(new ErrorHandler("Please login to access this resource", 400));
   }
