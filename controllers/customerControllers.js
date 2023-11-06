@@ -4,15 +4,13 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
-import multer from "multer";
-import path from "path";
 
 dotenv.config();
 
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-
+    console.log(name, email, password);
     // Check if the email already exists in the database
     connection.query(
       "SELECT * FROM customers WHERE email = ?",
@@ -33,8 +31,8 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           }
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO customers (name, email, password,date) VALUES (?, ?, ?,?)",
-            [name, email, hashedPassword, date],
+            "INSERT INTO customers (name, email, password) VALUES (?, ?, ?)",
+            [name, email, hashedPassword],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
@@ -78,14 +76,11 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
         }
 
         const user = results[0];
-
         // Check if the provided password matches the one in the database
         const isPasswordMatch = await bcrypt.compare(password, user.password);
-
         if (!isPasswordMatch) {
           return next(new ErrorHandler("Invalid email or password", 400));
         }
-
         // Create a JWT token
         const token = jwt.sign({ email: user.email }, SECRET_KEY, {
           expiresIn: "78h",
@@ -104,7 +99,7 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 });
 
 export const customerorder = async (req, res, next) => {
-  console.log("customer caled");
+  console.log("customer called");
   try {
     const { service, product, units, tracking_url, date, customer_id } =
       req.body;
@@ -135,7 +130,7 @@ export const customerorder = async (req, res, next) => {
       labelStatus = false;
     }
     connection.query(
-      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
+      "INSERT INTO order_table (byid, customer_id, name, service, product, unit, tracking_url, fnsku, label, date, status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?,?)",
       [
         req_id,
         customer_id,
@@ -188,21 +183,24 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
   try {
     const customer_id = req.user.id;
     console.log(customer_id);
+    const status = req.params.status;
     connection.query(
-      "SELECT * FROM order_table WHERE customer_id = ?",
-      [customer_id],
+      "SELECT * FROM order_table WHERE customer_id = ? AND status = ?",
+      [customer_id, status],
       (error, results) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
         if (results.length > 0) {
-          // If there are orders, return them
-          res.status(201).json({
+          // If there are orders matching the criteria, return them
+          res.status(200).json({
             success: true,
             results,
           });
         } else {
-          return next(new ErrorHandler("No orders", 400));
+          return next(
+            new ErrorHandler("No orders with the specified status", 404)
+          );
         }
       }
     );
@@ -217,9 +215,21 @@ export const AcceptOrder = CatchAsyncError(async (req, res) => {
   console.log(customer_id, "amount called");
   const { amount } = req.body;
   console.log(amount);
+  connection.query(
+    "UPDATE order_table SET status=?, payment_status=? WHERE id = ?",
+    [6, true, id],
+    (error) => {
+      if (error) {
+        return next(new ErrorHandler(error.message, 500));
+      }
+      res.status(200).json({
+        success: true,
+        message: "Dimension Updated successfully",
+      });
+    }
+  );
   // Create the INSERT SQL query with the "id" from the request parameters
   const insertQuery = `INSERT INTO transaction_table ( customer_id, order_id, amount, type) VALUES (?, ?, ?, ?)`;
-
   // Execute the query
   connection.query(
     insertQuery,
@@ -236,9 +246,27 @@ export const AcceptOrder = CatchAsyncError(async (req, res) => {
   );
 });
 
+export const DeclineOrder = CatchAsyncError(async (req, res) => {
+  console.log(" update called");
+  const orderId = req.params.id;
+  console.log(orderId);
+  const { status } = req.body;
+  console.log(req.body);
+  console.log(status);
+  const sql = "UPDATE order_table SET status = ? WHERE id = ?";
+  connection.query(sql, [status, orderId], (err, result) => {
+    if (err) {
+      console.error("Error updating order status:", err);
+      res.status(500).json({ error: "Internal server error" });
+    } else {
+      console.log("Order status updated successfully");
+      res.status(200).json({ message: "Order status updated successfully" });
+    }
+  });
+});
 
 export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
- // Get the "id" from the URL parameters
+  // Get the "id" from the URL parameters
   const customer_id = req.user.id;
   console.log(customer_id, "amount called");
   const { amount } = req.body;

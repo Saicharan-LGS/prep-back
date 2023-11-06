@@ -18,6 +18,6 @@ orderRouter.get("/getAdminOrderDetails/:id", AdminGetSpecificOrderDetails);
 orderRouter.get("/getOrders/:status", GetOrders);
 orderRouter.put("/dimensionupdate/:id", isAuthenticated, dimensionUpdate);
 orderRouter.get("/dimensionorderlist", dimensionOrderList);
-orderRouter.get("/labelorderlist", labelOrderList);
+orderRouter.get("/labelorderlist/:status", labelOrderList);
 orderRouter.put("/labelorderlist/:id", isAuthenticated, labelUpdate);
 orderRouter.put("/amountUpdate/:id", isAuthenticated, AmountUpdate)

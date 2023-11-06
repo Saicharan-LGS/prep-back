@@ -23,4 +23,4 @@ app.get("/test", (req, res, next) => {
   });
 });
 
-app.use(ErrorMiddleware)
+app.use(ErrorMiddleware);
