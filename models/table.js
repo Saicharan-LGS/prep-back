@@ -22,9 +22,9 @@ const tablesToCreate = [
     sql: orderTable,
   },
   {
-    tableName:"transactionTable",
-    sql:TransactionTable,
-  }
+    tableName: "transactionTable",
+    sql: TransactionTable,
+  },
 ];
 
 export const createTables = () => {

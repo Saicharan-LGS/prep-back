@@ -7,9 +7,13 @@ import {
   customerorder,
   customerData,
   customerOrderList,
+  AcceptOrder,
 } from "../controllers/customerControllers.js";
 import { isAuthenticatedCustomer } from "../middleware/auth.js";
-import { AdminUpdateOrderDetail } from "../controllers/orderControllers.js";
+import {
+  AdminUpdateOrderDetail,
+  AmountUpdate,
+} from "../controllers/orderControllers.js";
 import { orderRouter } from "./order.route.js";
 
 const storage = multer.diskStorage({
@@ -51,3 +55,5 @@ orderRouter.put(
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
   AdminUpdateOrderDetail
 );
+
+customerRouter.post("/acceptOrder/:id", isAuthenticatedCustomer, AcceptOrder);

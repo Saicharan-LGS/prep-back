@@ -97,7 +97,6 @@ export const isAuthenticatedCustomer = CatchAsyncError(
             return next(new ErrorHandler("Customer not found", 404));
           }
           const user = results[0];
-          console.log(user);
           req.user = user;
           next();
         }

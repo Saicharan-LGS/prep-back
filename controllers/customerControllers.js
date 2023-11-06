@@ -187,6 +187,7 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
 export const customerOrderList = CatchAsyncError(async (req, res, next) => {
   try {
     const customer_id = req.user.id;
+    console.log(customer_id);
     connection.query(
       "SELECT * FROM order_table WHERE customer_id = ?",
       [customer_id],
@@ -194,15 +195,13 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
-
         if (results.length > 0) {
           // If there are orders, return them
           res.status(201).json({
             success: true,
-            orderList: results,
+            results,
           });
         } else {
-          // If there are no orders, return an error
           return next(new ErrorHandler("No orders", 400));
         }
       }
@@ -210,4 +209,55 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
+});
+
+export const AcceptOrder = CatchAsyncError(async (req, res) => {
+  const { id } = req.params; // Get the "id" from the URL parameters
+  const customer_id = req.user.id;
+  console.log(customer_id, "amount called");
+  const { amount } = req.body;
+  console.log(amount);
+  // Create the INSERT SQL query with the "id" from the request parameters
+  const insertQuery = `INSERT INTO transaction_table ( customer_id, order_id, amount, type) VALUES (?, ?, ?, ?)`;
+
+  // Execute the query
+  connection.query(
+    insertQuery,
+    [customer_id, id, `-${amount}`, "debit"],
+    (error, results) => {
+      if (error) {
+        console.error("Error inserting data:", error);
+        res.status(500).json({ error: "Error inserting data" });
+      } else {
+        console.log("Data inserted successfully");
+        res.status(200).json({ message: "Data inserted successfully" });
+      }
+    }
+  );
+});
+
+
+export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
+ // Get the "id" from the URL parameters
+  const customer_id = req.user.id;
+  console.log(customer_id, "amount called");
+  const { amount } = req.body;
+  console.log(amount);
+  // Create the INSERT SQL query with the "id" from the request parameters
+  const insertQuery = `INSERT INTO transaction_table ( customer_id, amount, type) VALUES (?, ?, ?)`;
+
+  // Execute the query
+  connection.query(
+    insertQuery,
+    [customer_id, `+${amount}`, "credit"],
+    (error, results) => {
+      if (error) {
+        console.error("Error inserting data:", error);
+        res.status(500).json({ error: "Error inserting data" });
+      } else {
+        console.log("Data inserted successfully");
+        res.status(200).json({ message: "Data inserted successfully" });
+      }
+    }
+  );
 });
