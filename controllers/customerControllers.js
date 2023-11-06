@@ -33,8 +33,8 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           }
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO customers (name, email, password) VALUES (?, ?, ?)",
-            [name, email, hashedPassword],
+            "INSERT INTO customers (name, email, password,date) VALUES (?, ?, ?,?)",
+            [name, email, hashedPassword, date],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
@@ -104,14 +104,13 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 });
 
 export const customerorder = async (req, res, next) => {
-  console.log("custiomer caled");
+  console.log("customer caled");
   try {
     const { service, product, units, tracking_url, date, customer_id } =
       req.body;
     console.log(req.body);
     const req_id = req.user.id;
     const name = req.user.name;
-
     const fnskuFiles = req.files;
     const fnskuFile = fnskuFiles["fnskuSend"]
       ? fnskuFiles["fnskuSend"][0].filename
@@ -119,10 +118,8 @@ export const customerorder = async (req, res, next) => {
     const boxlabel = fnskuFiles["labelSend"]
       ? fnskuFiles["labelSend"][0].filename
       : undefined;
-
     let fnskuStatus = false;
     let labelStatus = false;
-
     if (fnskuFile !== undefined && boxlabel !== undefined) {
       fnskuStatus = true;
       labelStatus = true;
@@ -137,9 +134,8 @@ export const customerorder = async (req, res, next) => {
       fnskuStatus = true;
       labelStatus = false;
     }
-
     connection.query(
-      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?,?)",
+      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
       [
         req_id,
         customer_id,
@@ -157,6 +153,7 @@ export const customerorder = async (req, res, next) => {
       ],
       (error) => {
         if (error) {
+          console.log(error);
           return next(new ErrorHandler(error.message, 500));
         }
         res.status(201).json({
@@ -181,6 +178,7 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
       id,
       message: "Customer Details",
     });
+    console.log(name);
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }

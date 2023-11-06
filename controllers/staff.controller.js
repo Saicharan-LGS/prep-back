@@ -85,13 +85,14 @@ export const staffLogin = CatchAsyncError(async (req, res, next) => {
 
         // Create a JWT token
         const token = jwt.sign({ email: user.email }, SECRET_KEY, {
-          expiresIn: "1h",
+          expiresIn: "72h",
         });
 
         res.status(200).json({
           success: true,
           message: "Login successful",
           token,
+          role
         });
       }
     );
