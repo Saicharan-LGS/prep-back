@@ -73,8 +73,8 @@ export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
 
     // Update the record in the order_table
     connection.query(
-      "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ? WHERE id = ?",
-      [req_id, length, width, height, weight, id],
+      "UPDATE order_table SET byid=?,length = ?, width = ?,status=? height = ?, weight = ? WHERE id = ?",
+      [req_id, length, width, 3, height, weight, id],
       (error) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));

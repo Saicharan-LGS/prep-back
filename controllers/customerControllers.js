@@ -11,7 +11,7 @@ dotenv.config();
 
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
-    const { name, email, password, date } = req.body;
+    const { name, email, password } = req.body;
 
     // Check if the email already exists in the database
     connection.query(
@@ -33,8 +33,8 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           }
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO customers (name, email, password,date) VALUES (?, ?, ?,?)",
-            [name, email, hashedPassword, date],
+            "INSERT INTO customers (name, email, password) VALUES (?, ?, ?)",
+            [name, email, hashedPassword],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
@@ -108,7 +108,7 @@ export const customerorder = async (req, res, next) => {
   try {
     const { service, product, units, tracking_url, date, customer_id } =
       req.body;
-    console.log(units);
+    console.log(req.body);
     const req_id = req.user.id;
     const name = req.user.name;
 
@@ -139,7 +139,7 @@ export const customerorder = async (req, res, next) => {
     }
 
     connection.query(
-      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?)",
+      "INSERT INTO order_table (byid,customer_id, name, service, product, unit, tracking_url, fnsku, label,date,status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?,?)",
       [
         req_id,
         customer_id,
@@ -181,6 +181,34 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
       id,
       message: "Customer Details",
     });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+export const customerOrderList = CatchAsyncError(async (req, res, next) => {
+  try {
+    const customer_id = req.user.id;
+    connection.query(
+      "SELECT * FROM order_table WHERE customer_id = ?",
+      [customer_id],
+      (error, results) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500)); // Handle database query error
+        }
+
+        if (results.length > 0) {
+          // If there are orders, return them
+          res.status(201).json({
+            success: true,
+            orderList: results,
+          });
+        } else {
+          // If there are no orders, return an error
+          return next(new ErrorHandler("No orders", 400));
+        }
+      }
+    );
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }

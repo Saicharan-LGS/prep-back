@@ -6,6 +6,7 @@ import {
   customerLogin,
   customerorder,
   customerData,
+  customerOrderList,
 } from "../controllers/customerControllers.js";
 import { isAuthenticatedCustomer } from "../middleware/auth.js";
 import { AdminUpdateOrderDetail } from "../controllers/orderControllers.js";
@@ -39,6 +40,14 @@ customerRouter.post(
 
 customerRouter.get("/customerdata", isAuthenticatedCustomer, customerData);
 
-orderRouter.put("/updateOrderDetails/:id",
-upload.fields([{name:"fnskuSend"},{name:"labelSend"}])
-,AdminUpdateOrderDetail)
+customerRouter.get(
+  "/customerorderlist",
+  isAuthenticatedCustomer,
+  customerOrderList
+);
+
+orderRouter.put(
+  "/updateOrderDetails/:id",
+  upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
+  AdminUpdateOrderDetail
+);
