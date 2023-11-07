@@ -4,6 +4,7 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
+import nodemailerConfig from "../utils/nodemailerConfig.js";
 
 dotenv.config();
 
