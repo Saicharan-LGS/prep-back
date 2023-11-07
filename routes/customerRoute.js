@@ -8,6 +8,7 @@ import {
   customerData,
   customerOrderList,
   AcceptOrder,
+  customerDetails,
 } from "../controllers/customerControllers.js";
 import { isAuthenticatedCustomer } from "../middleware/auth.js";
 import {
@@ -23,7 +24,7 @@ const storage = multer.diskStorage({
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + "-" + Math.round(Math.random() * 1e9);
-    console.log(uniqueSuffix)
+    console.log(uniqueSuffix);
     cb(
       null,
       file.fieldname + "sai" + uniqueSuffix + path.extname(file.originalname)
@@ -46,7 +47,7 @@ customerRouter.post(
 customerRouter.get("/customerdata", isAuthenticatedCustomer, customerData);
 
 customerRouter.get(
-  "/customerorderlist",
+  "/customerorderlist/:id",
   isAuthenticatedCustomer,
   customerOrderList
 );
@@ -58,3 +59,4 @@ orderRouter.put(
 );
 
 customerRouter.post("/acceptOrder/:id", isAuthenticatedCustomer, AcceptOrder);
+customerRouter.get("/customermembers", customerDetails)

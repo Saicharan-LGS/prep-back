@@ -10,7 +10,7 @@ dotenv.config();
 export const staffRegistration = CatchAsyncError(async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
-    console.log("regi called", req.body);
+
     connection.query(
       "SELECT * FROM staff_table WHERE email = ?",
       [email],
@@ -18,6 +18,7 @@ export const staffRegistration = CatchAsyncError(async (req, res, next) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
+
         if (results.length > 0) {
           return next(new ErrorHandler("Email already exists", 400));
         }
@@ -30,12 +31,28 @@ export const staffRegistration = CatchAsyncError(async (req, res, next) => {
 
           // Insert user data into the database with the hashed password
           connection.query(
-            "INSERT INTO staff_table (name, email, password,role) VALUES (?, ?, ?,?)",
+            "INSERT INTO staff_table (name, email, password, role) VALUES (?, ?, ?, ?)",
             [name, email, hashedPassword, role],
             (error) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
               }
+
+              // Send an email after successful registration
+              const transporter = nodemailerConfig();
+              const mailOptions = {
+                from: process.env.SMTP_MAIL,
+                to: email, // The recipient's email address
+                subject: "Welcome to Our Staff Portal",
+                text: `Dear ${name},\n\nThank you for registering with our staff portal. Your staff account is now active and ready for use. Your role is: ${role}\n\nYou can now log in with your email and password:${password}.`,
+              };
+
+              transporter.sendMail(mailOptions, (emailError, info) => {
+                if (emailError) {
+                  return next(new ErrorHandler("Email could not be sent", 500));
+                }
+                console.log("Email sent:", info.response);
+              });
 
               res.status(201).json({
                 success: true,
@@ -50,7 +67,6 @@ export const staffRegistration = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
-
 const SECRET_KEY = process.env.SECRET_KEY;
 
 export const staffLogin = CatchAsyncError(async (req, res, next) => {
@@ -110,6 +126,24 @@ export const staffData = CatchAsyncError(async (req, res, next) => {
       name,
       role,
       message: "Staff Details",
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
+
+export const staffMebmers = CatchAsyncError(async (req, res, next) => {
+  try {
+    connection.query("SELECT * FROM staff_table ", async (error, results) => {
+      if (error) {
+        return next(new ErrorHandler(error.message, 500));
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "staff Data",
+        staffMembers: results,
+      });
     });
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));

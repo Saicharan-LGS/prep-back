@@ -80,7 +80,7 @@ export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
         }
-
+        console.log("updated successfully");
         res.status(200).json({
           success: true,
           message: "Dimension Updated successfully",
@@ -171,6 +171,32 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+export const AccountOrders = CatchAsyncError(async (req, res, next) => {
+  console.log("called acconuntant");
+  try {
+    connection.query(
+      "SELECT * FROM order_table WHERE status = 4",
+      async (error, results) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500)); // Handle database query error
+        }
+
+        if (results.length === 0) {
+          return next(new ErrorHandler("No Orders", 400));
+        }
+        const data = results;
+        
+        res.status(200).json({
+          success: true,
+          message: "Orders",
+          data,
+        });
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
+});
 export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
     try {

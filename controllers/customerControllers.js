@@ -10,7 +10,7 @@ dotenv.config();
 export const customerRegistration = CatchAsyncError(async (req, res, next) => {
   try {
     const { name, email, password } = req.body;
-    console.log(name, email, password);
+
     // Check if the email already exists in the database
     connection.query(
       "SELECT * FROM customers WHERE email = ?",
@@ -29,6 +29,7 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
           if (err) {
             return next(new ErrorHandler(err.message, 500));
           }
+
           // Insert user data into the database with the hashed password
           connection.query(
             "INSERT INTO customers (name, email, password) VALUES (?, ?, ?)",
@@ -37,6 +38,22 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
               if (error) {
                 return next(new ErrorHandler(error.message, 500)); // Handle database insertion error
               }
+
+              // Send an email after successful registration
+              const transporter = nodemailerConfig();
+              const mailOptions = {
+                from: process.env.SMTP_MAIL,
+                to: email, // The recipient's email address
+                subject: "Welcome to AX Xpress! Your Account Details",
+                text:` Dear ${name},\n\nThank you for registering with AX Xpress. We are delighted to have you as part of our community, and we want to extend a warm welcome to you.\n\nYour account is now active and ready for use. To make sure you have all the information you need, we are providing your login credentials below:\n\nEmail: ${email}\nTemporary Password: ${password}`,
+              };
+
+              transporter.sendMail(mailOptions, (emailError, info) => {
+                if (emailError) {
+                  return next(new ErrorHandler("Email could not be sent", 500));
+                }
+                console.log("Email sent:", info.response);
+              });
 
               res.status(201).json({
                 success: true,
@@ -179,35 +196,67 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+
 export const customerOrderList = CatchAsyncError(async (req, res, next) => {
+  console.log("customer list called");
   try {
     const customer_id = req.user.id;
-    console.log(customer_id);
-    const status = req.params.status;
-    connection.query(
-      "SELECT * FROM order_table WHERE customer_id = ? AND status = ?",
-      [customer_id, status],
-      (error, results) => {
-        if (error) {
-          return next(new ErrorHandler(error.message, 500)); // Handle database query error
+    const status = req.params.id;
+
+    console.log(customer_id, status);
+
+    if (status === "8") {
+      // If status is 8, change the query to get all products with a status below 8
+      connection.query(
+        "SELECT * FROM order_table WHERE customer_id = ? AND status < 8",
+        [customer_id],
+        (error, results) => {
+          if (error) {
+            return next(new ErrorHandler(error.message, 500)); // Handle database query error
+          }
+          if (results.length > 0) {
+            // If there are orders matching the criteria, return them
+            console.log(results);
+            res.status(200).json({
+              success: true,
+              results,
+            });
+          } else {
+            return next(
+              new ErrorHandler("No orders with a status below 8", 404)
+            );
+          }
         }
-        if (results.length > 0) {
-          // If there are orders matching the criteria, return them
-          res.status(200).json({
-            success: true,
-            results,
-          });
-        } else {
-          return next(
-            new ErrorHandler("No orders with the specified status", 404)
-          );
+      );
+    } else {
+      // For other status values, use the original query
+      connection.query(
+        "SELECT * FROM order_table WHERE customer_id = ? AND status = ?",
+        [customer_id, status],
+        (error, results) => {
+          if (error) {
+            return next(new ErrorHandler(error.message, 500)); // Handle database query error
+          }
+          if (results.length > 0) {
+            // If there are orders matching the criteria, return them
+            console.log(results);
+            res.status(200).json({
+              success: true,
+              results,
+            });
+          } else {
+            return next(
+              new ErrorHandler("No orders with the specified status", 404)
+            );
+          }
         }
-      }
-    );
+      );
+    }
   } catch (error) {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
 
 export const AcceptOrder = CatchAsyncError(async (req, res) => {
   const { id } = req.params; // Get the "id" from the URL parameters
@@ -288,4 +337,23 @@ export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
       }
     }
   );
+});
+
+
+export const customerDetails = CatchAsyncError(async (req, res, next) => {
+  try {
+    connection.query("SELECT * FROM customers ", async (error, results) => {
+      if (error) {
+        return next(new ErrorHandler(error.message, 500));
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "customer Data",
+        customerMembers: results,
+      });
+    });
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
+  }
 });
