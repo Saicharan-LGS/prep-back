@@ -9,6 +9,7 @@ import {
   customerOrderList,
   AcceptOrder,
   customerDetails,
+  DeclineOrder,
 } from "../controllers/customerControllers.js";
 import { isAuthenticatedCustomer } from "../middleware/auth.js";
 import {
@@ -70,3 +71,9 @@ orderRouter.put(
 
 customerRouter.post("/acceptOrder/:id", isAuthenticatedCustomer, AcceptOrder);
 customerRouter.get("/customermembers", customerDetails)
+orderRouter.put("/declineOrder/:id", isAuthenticatedCustomer, DeclineOrder);
+orderRouter.put(
+  "/customerOrderDetail/:id",
+  upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
+  AdminUpdateOrderDetail
+);

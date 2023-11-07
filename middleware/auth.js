@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 
 // authenticated user
 export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
+  console.log("called")
   const authorizationHeader = req.headers.authorization;
   if (!authorizationHeader) {
     return next(new ErrorHandler("Please provide an access token", 400));
@@ -16,7 +17,9 @@ export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(access_token, process.env.SECRET_KEY);
+    console.log(decoded, "4444")
     if (!decoded) {
+      console.log("decline called")
       return next(new ErrorHandler("Access token is not valid", 400));
     }
 

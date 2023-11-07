@@ -5,10 +5,9 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 export const AdminUpdateOrder = CatchAsyncError(async (req, res) => {
   console.log(" update called");
   const orderId = req.params.id;
-  console.log(orderId);
+
   const { status } = req.body;
-  console.log(req.body);
-  console.log(status);
+
   const sql = "UPDATE order_table SET status = ? WHERE id = ?";
   connection.query(sql, [status, orderId], (err, result) => {
     if (err) {
@@ -47,14 +46,19 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
   console.log(status);
 
   if (!status) {
-    return res
-      .status(400)
-      .json({ error: "Status is required in the request body" });
+    return res.status(400).json({ error: "Status is required in the request body" });
   }
-  // Perform a SQL query to fetch products from the order_table based on the provided status
-  const sql = "SELECT * FROM order_table WHERE status = ?";
+  let sql;
+  let queryParameters;
 
-  connection.query(sql, [status], (err, results) => {
+  if (status === "8") {
+    sql = "SELECT * FROM order_table WHERE status < ?";
+    queryParameters = [8];
+  } else {
+    sql = "SELECT * FROM order_table WHERE status = ?";
+    queryParameters = [status];
+  }
+  connection.query(sql, queryParameters, (err, results) => {
     if (err) {
       console.error("Error fetching data:", err);
       res.status(500).json({ error: "Internal server error" });
@@ -65,13 +69,14 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
   });
 });
 
+
 export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
   console.log("dim called");
   try {
     const { length, width, height, weight } = req.body;
     const req_id = req.user.id;
     const id = req.params.id; // Assuming you get the ID from the request parameters
-    console.log(req.body);
+
     // Update the record in  the order_table
     connection.query(
       "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ?,status=? WHERE id = ?",
@@ -80,7 +85,6 @@ export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
         }
-        console.log("updated successfully");
         res.status(200).json({
           success: true,
           message: "Dimension Updated successfully",
@@ -185,7 +189,7 @@ export const AccountOrders = CatchAsyncError(async (req, res, next) => {
           return next(new ErrorHandler("No Orders", 400));
         }
         const data = results;
-        
+
         res.status(200).json({
           success: true,
           message: "Orders",
@@ -201,7 +205,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
     try {
       const orderId = req.params.id; // Get the order ID from URL parameters
-      const { customerName, servicesReq, productName, units, trackingUrl } =
+      const { name, service, product, unit, tracking_url } =
         req.body;
       console.log(req.body.fnskuSend);
       console.log(req.body);
@@ -236,11 +240,11 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
           ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
           WHERE id = ?`,
         [
-          customerName,
-          servicesReq,
-          productName,
+          name,
+          service,
+          product,
           units,
-          trackingUrl,
+          tracking_url,
           ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
           ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
           Number(orderId), // Ensure orderId is treated as a numeric value
@@ -289,6 +293,7 @@ export const AmountUpdate = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
 
 // export const AdminUpdateOrderDetail = CatchAsyncError(async (req, res) => {
 //   console.log("Update order called");
