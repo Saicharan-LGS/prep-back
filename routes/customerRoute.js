@@ -62,3 +62,8 @@ orderRouter.put(
 customerRouter.post("/acceptOrder/:id", isAuthenticatedCustomer, AcceptOrder);
 customerRouter.get("/customermembers", customerDetails)
 orderRouter.put("/declineOrder/:id", isAuthenticatedCustomer, DeclineOrder);
+orderRouter.put(
+  "/customerOrderDetail/:id",
+  upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
+  AdminUpdateOrderDetail
+);
