@@ -40,6 +40,16 @@ customerRouter.post("/registration", customerRegistration);
 customerRouter.post("/login", customerLogin);
 
 customerRouter.post(
+
+
+
+
+
+
+
+
+
+  
   "/customerorder",
   isAuthenticatedCustomer,
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
