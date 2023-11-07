@@ -46,7 +46,9 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
   console.log(status);
 
   if (!status) {
-    return res.status(400).json({ error: "Status is required in the request body" });
+    return res
+      .status(400)
+      .json({ error: "Status is required in the request body" });
   }
   let sql;
   let queryParameters;
@@ -68,7 +70,6 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
     }
   });
 });
-
 
 export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
   console.log("dim called");
@@ -205,8 +206,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
     try {
       const orderId = req.params.id; // Get the order ID from URL parameters
-      const { name, service, product, unit, tracking_url } =
-        req.body;
+      const { name, service, product, unit, tracking_url } = req.body;
       console.log(req.body.fnskuSend);
       console.log(req.body);
       const fnskuFiles = req.files;
@@ -293,7 +293,6 @@ export const AmountUpdate = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
-
 
 // export const AdminUpdateOrderDetail = CatchAsyncError(async (req, res) => {
 //   console.log("Update order called");

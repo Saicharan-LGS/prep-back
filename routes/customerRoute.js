@@ -10,6 +10,7 @@ import {
   AcceptOrder,
   customerDetails,
   DeclineOrder,
+  CustomerUpdateDetail,
 } from "../controllers/customerControllers.js";
 import { isAuthenticatedCustomer } from "../middleware/auth.js";
 import {
@@ -65,5 +66,5 @@ orderRouter.put("/declineOrder/:id", isAuthenticatedCustomer, DeclineOrder);
 orderRouter.put(
   "/customerOrderDetail/:id",
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
-  AdminUpdateOrderDetail
+  CustomerUpdateDetail
 );

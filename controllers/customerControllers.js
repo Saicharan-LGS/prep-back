@@ -351,3 +351,71 @@ export const customerDetails = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
+
+export const CustomerUpdateDetail = CatchAsyncError(
+  async (req, res, next) => {
+    try {
+      const orderId = req.params.id; // Get the order ID from URL parameters
+      const { name, service, product, unit, tracking_url } = req.body;
+      console.log(req.body.fnskuSend);
+      console.log(req.body);
+      const fnskuFiles = req.files;
+      console.log(fnskuFiles, req.body);
+      const fnskuFile = fnskuFiles["fnskuSend"]
+        ? fnskuFiles["fnskuSend"][0].filename
+        : undefined;
+      const boxlabel = fnskuFiles["labelSend"]
+        ? fnskuFiles["labelSend"][0].filename
+        : undefined;
+      let fnskuStatus = false;
+      let labelStatus = false;
+
+      if (fnskuFile !== undefined) {
+        fnskuStatus = true;
+      }
+
+      if (boxlabel !== undefined) {
+        labelStatus = true;
+      }
+
+      console.log(fnskuFile, boxlabel);
+      connection.query(
+        `UPDATE order_table SET 
+           name=?,
+          service = ?,
+          product = ?,
+          unit = ?,
+          tracking_url = ? 
+          ${fnskuFile !== undefined ? ", fnsku = ?, fnsku_status = ?" : ""}
+          ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
+          WHERE id = ?`,
+        [
+          name,
+          service,
+          product,
+          unit,
+          tracking_url,
+          ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
+          ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
+          Number(orderId), 
+        ],
+        (error, results) => {
+          if (error) {
+            return next(new ErrorHandler(error.message, 500));
+          }
+          if (results.affectedRows === 0) {
+            return next(new ErrorHandler("Order not found", 404));
+          }
+          res.status(200).json({
+            success: true,
+            message: "Order updated",
+          });
+          console.log("Order updated");
+        }
+      );
+    } catch (error) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
