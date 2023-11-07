@@ -45,7 +45,7 @@ export const customerRegistration = CatchAsyncError(async (req, res, next) => {
                 from: process.env.SMTP_MAIL,
                 to: email, // The recipient's email address
                 subject: "Welcome to AX Xpress! Your Account Details",
-                text:` Dear ${name},\n\nThank you for registering with AX Xpress. We are delighted to have you as part of our community, and we want to extend a warm welcome to you.\n\nYour account is now active and ready for use. To make sure you have all the information you need, we are providing your login credentials below:\n\nEmail: ${email}\nTemporary Password: ${password}`,
+                text: ` Dear ${name},\n\nThank you for registering with AX Xpress. We are delighted to have you as part of our community, and we want to extend a warm welcome to you.\n\nYour account is now active and ready for use. To make sure you have all the information you need, we are providing your login credentials below:\n\nEmail: ${email}\nTemporary Password: ${password}`,
               };
 
               transporter.sendMail(mailOptions, (emailError, info) => {
@@ -107,6 +107,7 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
           success: true,
           message: "Login successful",
           token,
+          role: "customer",
         });
       }
     );
@@ -196,7 +197,6 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-
 export const customerOrderList = CatchAsyncError(async (req, res, next) => {
   console.log("customer list called");
   try {
@@ -238,8 +238,6 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
             return next(new ErrorHandler(error.message, 500)); // Handle database query error
           }
           if (results.length > 0) {
-            // If there are orders matching the criteria, return them
-            console.log(results);
             res.status(200).json({
               success: true,
               results,
@@ -256,7 +254,6 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
-
 
 export const AcceptOrder = CatchAsyncError(async (req, res) => {
   const { id } = req.params; // Get the "id" from the URL parameters
@@ -294,14 +291,12 @@ export const AcceptOrder = CatchAsyncError(async (req, res) => {
     }
   );
 });
-
 export const DeclineOrder = CatchAsyncError(async (req, res) => {
-  console.log(" update called");
+  console.log("decline called");
   const orderId = req.params.id;
-  console.log(orderId);
+
   const { status } = req.body;
-  console.log(req.body);
-  console.log(status);
+
   const sql = "UPDATE order_table SET status = ? WHERE id = ?";
   connection.query(sql, [status, orderId], (err, result) => {
     if (err) {
@@ -338,7 +333,6 @@ export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
     }
   );
 });
-
 
 export const customerDetails = CatchAsyncError(async (req, res, next) => {
   try {

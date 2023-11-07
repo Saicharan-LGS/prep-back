@@ -5,10 +5,9 @@ import ErrorHandler from "../utils/ErrorHandler.js";
 export const AdminUpdateOrder = CatchAsyncError(async (req, res) => {
   console.log(" update called");
   const orderId = req.params.id;
-  console.log(orderId);
+
   const { status } = req.body;
-  console.log(req.body);
-  console.log(status);
+
   const sql = "UPDATE order_table SET status = ? WHERE id = ?";
   connection.query(sql, [status, orderId], (err, result) => {
     if (err) {
@@ -71,7 +70,7 @@ export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
     const { length, width, height, weight } = req.body;
     const req_id = req.user.id;
     const id = req.params.id; // Assuming you get the ID from the request parameters
-    console.log(req.body);
+
     // Update the record in  the order_table
     connection.query(
       "UPDATE order_table SET byid=?,length = ?, width = ?, height = ?, weight = ?,status=? WHERE id = ?",
@@ -80,7 +79,6 @@ export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
         }
-        console.log("updated successfully");
         res.status(200).json({
           success: true,
           message: "Dimension Updated successfully",
@@ -185,7 +183,7 @@ export const AccountOrders = CatchAsyncError(async (req, res, next) => {
           return next(new ErrorHandler("No Orders", 400));
         }
         const data = results;
-        
+
         res.status(200).json({
           success: true,
           message: "Orders",
@@ -289,6 +287,7 @@ export const AmountUpdate = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
 
 // export const AdminUpdateOrderDetail = CatchAsyncError(async (req, res) => {
 //   console.log("Update order called");
