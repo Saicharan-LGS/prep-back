@@ -94,6 +94,7 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
         }
 
         const user = results[0];
+        const name = user.name;
         // Check if the provided password matches the one in the database
         const isPasswordMatch = await bcrypt.compare(password, user.password);
         if (!isPasswordMatch) {
@@ -109,6 +110,7 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
           message: "Login successful",
           token,
           role: "customer",
+          name,
         });
       }
     );
