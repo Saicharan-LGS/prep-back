@@ -258,42 +258,55 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
   }
 });
 
-export const AcceptOrder = CatchAsyncError(async (req, res) => {
+export const AcceptOrder = CatchAsyncError(async (req, res, next) => {
   const { id } = req.params; // Get the "id" from the URL parameters
   const customer_id = req.user.id;
   console.log(customer_id, "amount called");
   const { amount } = req.body;
   console.log(amount);
-  connection.query(
-    "UPDATE order_table SET status=?, payment_status=? WHERE id = ?",
-    [6, true, id],
-    (error) => {
-      if (error) {
-        return next(new ErrorHandler(error.message, 500));
-      }
-      res.status(200).json({
-        success: true,
-        message: "Dimension Updated successfully",
-      });
-    }
-  );
-  // Create the INSERT SQL query with the "id" from the request parameters
-  const insertQuery = `INSERT INTO transaction_table ( customer_id, order_id, amount, type) VALUES (?, ?, ?, ?)`;
-  // Execute the query
-  connection.query(
-    insertQuery,
-    [customer_id, id, `-${amount}`, "debit"],
-    (error, results) => {
-      if (error) {
-        console.error("Error inserting data:", error);
-        res.status(500).json({ error: "Error inserting data" });
-      } else {
-        console.log("Data inserted successfully");
-        res.status(200).json({ message: "Data inserted successfully" });
-      }
-    }
-  );
+
+  try {
+    // First, update the order_table
+    await new Promise((resolve, reject) => {
+      connection.query(
+        "UPDATE order_table SET status=?, payment_status=? WHERE id = ?",
+        [6, true, id],
+        (error) => {
+          if (error) {
+            return reject(error);
+          }
+          resolve();
+        }
+      );
+    });
+
+    // Then, insert data into the transaction_table
+    await new Promise((resolve, reject) => {
+      const insertQuery = `INSERT INTO transaction_table (customer_id, order_id, amount, type) VALUES (?, ?, ?, ?)`;
+      connection.query(
+        insertQuery,
+        [customer_id, id, `-${amount}`, "debit"],
+        (error) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve();
+          }
+        }
+      );
+    });
+
+    // Send the response only after both queries have completed successfully
+    res.status(200).json({
+      success: true,
+      message: "Order Accepted",
+    });
+  } catch (error) {
+    console.error("Error processing the request:", error);
+    return next(new ErrorHandler(error.message, 500));
+  }
 });
+
 export const DeclineOrder = CatchAsyncError(async (req, res) => {
   console.log("decline called");
   const orderId = req.params.id;
@@ -355,36 +368,34 @@ export const customerDetails = CatchAsyncError(async (req, res, next) => {
   }
 });
 
+export const CustomerUpdateDetail = CatchAsyncError(async (req, res, next) => {
+  try {
+    const orderId = req.params.id; // Get the order ID from URL parameters
+    const { name, service, product, unit, tracking_url } = req.body;
+    console.log(req.body.fnskuSend);
+    console.log(req.body);
+    const fnskuFiles = req.files;
+    console.log(fnskuFiles, req.body);
+    const fnskuFile = fnskuFiles["fnskuSend"]
+      ? fnskuFiles["fnskuSend"][0].filename
+      : undefined;
+    const boxlabel = fnskuFiles["labelSend"]
+      ? fnskuFiles["labelSend"][0].filename
+      : undefined;
+    let fnskuStatus = false;
+    let labelStatus = false;
 
-export const CustomerUpdateDetail = CatchAsyncError(
-  async (req, res, next) => {
-    try {
-      const orderId = req.params.id; // Get the order ID from URL parameters
-      const { name, service, product, unit, tracking_url } = req.body;
-      console.log(req.body.fnskuSend);
-      console.log(req.body);
-      const fnskuFiles = req.files;
-      console.log(fnskuFiles, req.body);
-      const fnskuFile = fnskuFiles["fnskuSend"]
-        ? fnskuFiles["fnskuSend"][0].filename
-        : undefined;
-      const boxlabel = fnskuFiles["labelSend"]
-        ? fnskuFiles["labelSend"][0].filename
-        : undefined;
-      let fnskuStatus = false;
-      let labelStatus = false;
+    if (fnskuFile !== undefined) {
+      fnskuStatus = true;
+    }
 
-      if (fnskuFile !== undefined) {
-        fnskuStatus = true;
-      }
+    if (boxlabel !== undefined) {
+      labelStatus = true;
+    }
 
-      if (boxlabel !== undefined) {
-        labelStatus = true;
-      }
-
-      console.log(fnskuFile, boxlabel);
-      connection.query(
-        `UPDATE order_table SET 
+    console.log(fnskuFile, boxlabel);
+    connection.query(
+      `UPDATE order_table SET 
            name=?,
           service = ?,
           product = ?,
@@ -393,32 +404,31 @@ export const CustomerUpdateDetail = CatchAsyncError(
           ${fnskuFile !== undefined ? ", fnsku = ?, fnsku_status = ?" : ""}
           ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
           WHERE id = ?`,
-        [
-          name,
-          service,
-          product,
-          unit,
-          tracking_url,
-          ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
-          ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
-          Number(orderId), 
-        ],
-        (error, results) => {
-          if (error) {
-            return next(new ErrorHandler(error.message, 500));
-          }
-          if (results.affectedRows === 0) {
-            return next(new ErrorHandler("Order not found", 404));
-          }
-          res.status(200).json({
-            success: true,
-            message: "Order updated",
-          });
-          console.log("Order updated");
+      [
+        name,
+        service,
+        product,
+        unit,
+        tracking_url,
+        ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
+        ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
+        Number(orderId),
+      ],
+      (error, results) => {
+        if (error) {
+          return next(new ErrorHandler(error.message, 500));
         }
-      );
-    } catch (error) {
-      return next(new ErrorHandler(error.message, 400));
-    }
+        if (results.affectedRows === 0) {
+          return next(new ErrorHandler("Order not found", 404));
+        }
+        res.status(200).json({
+          success: true,
+          message: "Order updated",
+        });
+        console.log("Order updated");
+      }
+    );
+  } catch (error) {
+    return next(new ErrorHandler(error.message, 400));
   }
-);
+});
