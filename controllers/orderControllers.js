@@ -227,9 +227,10 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
         amount,
         status,
       } = req.body;
-
-      const amountValue = amount === "" ? null : amount;
-
+      let amountValue;
+      amountValue = amount === "" ? null : amount;
+      amountValue = amount === null && null;
+      console.log(amountValue);
       const fnskuFiles = req.files;
       const fnskuFile = fnskuFiles["fnskuSend"]
         ? fnskuFiles["fnskuSend"][0].filename
@@ -283,6 +284,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
         ],
         (error, results) => {
           if (error) {
+            console.log(error);
             return next(new ErrorHandler(error.message, 500));
           }
           if (results.affectedRows === 0) {
