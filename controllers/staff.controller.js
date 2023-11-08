@@ -93,6 +93,7 @@ export const staffLogin = CatchAsyncError(async (req, res, next) => {
 
         const user = results[0];
         const role = user.role;
+        const name = user.name;
         // Check if the provided password matches the one in the database
         const isPasswordMatch = await bcrypt.compare(password, user.password);
 
@@ -110,6 +111,7 @@ export const staffLogin = CatchAsyncError(async (req, res, next) => {
           message: "Login successful",
           token,
           role,
+          name,
         });
       }
     );

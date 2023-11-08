@@ -156,10 +156,15 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
     const id = req.params.id;
     console.log(id);
     const req_id = req.user.id;
-
+    let status1;
+    if (status === true) {
+      status1 = 4;
+    } else {
+      status1 = 3;
+    }
     connection.query(
       "UPDATE order_table SET byid=?,fnsku_label_printed = ?,status=? WHERE id = ?",
-      [req_id, status, 4, id],
+      [req_id, status, status1, id],
       (error) => {
         if (error) {
           return next(new ErrorHandler(error.message, 500));
@@ -202,20 +207,37 @@ export const AccountOrders = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
 export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
+    console.log("admin upload called");
+    console.log(req.body);
     try {
       const orderId = req.params.id; // Get the order ID from URL parameters
-      const { name, service, product, unit, tracking_url,length,width,height,weight,amount,status } = req.body;
-      console.log(req.body);
+      const {
+        name,
+        service,
+        product,
+        unit,
+        tracking_url,
+        length,
+        width,
+        height,
+        weight,
+        amount,
+        status,
+      } = req.body;
+
+      const amountValue = amount === "" ? null : amount;
+
       const fnskuFiles = req.files;
-      console.log(fnskuFiles, req.body);
       const fnskuFile = fnskuFiles["fnskuSend"]
         ? fnskuFiles["fnskuSend"][0].filename
         : undefined;
       const boxlabel = fnskuFiles["labelSend"]
         ? fnskuFiles["labelSend"][0].filename
         : undefined;
+
       let fnskuStatus = false;
       let labelStatus = false;
 
@@ -229,20 +251,20 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
 
       connection.query(
         `UPDATE order_table SET 
-           name=?,
+          name = ?,
           service = ?,
           product = ?,
           unit = ?,
-          tracking_url = ?, 
+          tracking_url = ?,
           length = ?,
           width = ?,
           height = ?,
           weight = ?,
           amount = ?,
-          status = ?,
+          status = ? 
           ${fnskuFile !== undefined ? ", fnsku = ?, fnsku_status = ?" : ""}
           ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
-          WHERE id = ${Number(orderId)} `,
+          WHERE id = ?`,
         [
           name,
           service,
@@ -253,11 +275,11 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
           width,
           height,
           weight,
-          amount,
+          amountValue,
           status,
           ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
           ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
-   // Ensure orderId is treated as a numeric value
+          orderId, // Place orderId as the last parameter
         ],
         (error, results) => {
           if (error) {
