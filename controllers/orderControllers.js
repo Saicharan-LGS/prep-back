@@ -206,8 +206,7 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
     try {
       const orderId = req.params.id; // Get the order ID from URL parameters
-      const { name, service, product, unit, tracking_url } = req.body;
-      console.log(req.body.fnskuSend);
+      const { name, service, product, unit, tracking_url,length,width,height,weight,amount,status } = req.body;
       console.log(req.body);
       const fnskuFiles = req.files;
       console.log(fnskuFiles, req.body);
@@ -228,26 +227,37 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
         labelStatus = true;
       }
 
-      console.log(fnskuFile, boxlabel);
       connection.query(
         `UPDATE order_table SET 
            name=?,
           service = ?,
           product = ?,
           unit = ?,
-          tracking_url = ? 
+          tracking_url = ?, 
+          length = ?,
+          width = ?,
+          height = ?,
+          weight = ?,
+          amount = ?,
+          status = ?,
           ${fnskuFile !== undefined ? ", fnsku = ?, fnsku_status = ?" : ""}
           ${boxlabel !== undefined ? ", label = ?, label_status = ?" : ""}
-          WHERE id = ?`,
+          WHERE id = ${Number(orderId)} `,
         [
           name,
           service,
           product,
-          units,
+          unit,
           tracking_url,
+          length,
+          width,
+          height,
+          weight,
+          amount,
+          status,
           ...(fnskuFile !== undefined ? [fnskuFile, fnskuStatus] : []),
           ...(boxlabel !== undefined ? [boxlabel, labelStatus] : []),
-          Number(orderId), // Ensure orderId is treated as a numeric value
+   // Ensure orderId is treated as a numeric value
         ],
         (error, results) => {
           if (error) {
