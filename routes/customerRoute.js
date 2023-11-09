@@ -12,7 +12,11 @@ import {
   DeclineOrder,
   CustomerUpdateDetail,
 } from "../controllers/customerControllers.js";
-import { isAuthenticatedCustomer } from "../middleware/auth.js";
+import {
+  authorizeRoles,
+  isAuthenticated,
+  isAuthenticatedCustomer,
+} from "../middleware/auth.js";
 import {
   AdminUpdateOrderDetail,
   AmountUpdate,
@@ -36,20 +40,15 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 export const customerRouter = express.Router();
-customerRouter.post("/registration", customerRegistration);
+customerRouter.post(
+  "/registration",
+  isAuthenticated,
+  authorizeRoles("Admin"),
+  customerRegistration
+);
 customerRouter.post("/login", customerLogin);
 
 customerRouter.post(
-
-
-
-
-
-
-
-
-
-  
   "/customerorder",
   isAuthenticatedCustomer,
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
@@ -66,15 +65,24 @@ customerRouter.get(
 
 orderRouter.put(
   "/updateOrderDetails/:id",
+  isAuthenticated,
+  authorizeRoles("Admin"),
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
   AdminUpdateOrderDetail
 );
 
 customerRouter.post("/acceptOrder/:id", isAuthenticatedCustomer, AcceptOrder);
-customerRouter.get("/customermembers", customerDetails)
+customerRouter.get(
+  "/customermembers",
+  isAuthenticated,
+  authorizeRoles("Admin"),
+  customerDetails
+);
 orderRouter.put("/declineOrder/:id", isAuthenticatedCustomer, DeclineOrder);
+
 orderRouter.put(
   "/customerOrderDetail/:id",
+  isAuthenticatedCustomer,
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
   CustomerUpdateDetail
 );

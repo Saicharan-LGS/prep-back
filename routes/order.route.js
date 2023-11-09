@@ -11,15 +11,58 @@ import {
   AmountUpdate,
   AccountOrders,
 } from "../controllers/orderControllers.js";
-import { isAuthenticated } from "../middleware/auth.js";
+import { authorizeRoles, isAuthenticated } from "../middleware/auth.js";
 export const orderRouter = express.Router();
 
-orderRouter.put("/adminUpdateOrderStatus/:id", AdminUpdateOrder);
-orderRouter.get("/getAdminOrderDetails/:id", AdminGetSpecificOrderDetails);
-orderRouter.get("/getOrders/:status", isAuthenticated, GetOrders);
-orderRouter.put("/dimensionupdate/:id", isAuthenticated, dimensionUpdate);
-orderRouter.get("/dimensionorderlist", isAuthenticated, dimensionOrderList);
-orderRouter.get("/labelorderlist", isAuthenticated, labelOrderList);
-orderRouter.put("/updatelabelorder/:id", isAuthenticated, labelUpdate);
-orderRouter.get("/accountantlist", isAuthenticated, AccountOrders);
-orderRouter.put("/amountUpdate/:id", isAuthenticated, AmountUpdate);
+orderRouter.put(
+  "/adminUpdateOrderStatus/:id",
+  authorizeRoles("Admin"),
+  AdminUpdateOrder
+);
+orderRouter.get(
+  "/getAdminOrderDetails/:id",
+  authorizeRoles("Admin"),
+  AdminGetSpecificOrderDetails
+);
+orderRouter.get(
+  "/getOrders/:status",
+  isAuthenticated,
+  authorizeRoles("Admin"),
+  GetOrders
+);
+orderRouter.put(
+  "/dimensionupdate/:id",
+  isAuthenticated,
+  authorizeRoles("Admin", "Dimension"),
+  dimensionUpdate
+);
+orderRouter.get(
+  "/dimensionorderlist",
+  isAuthenticated,
+  authorizeRoles("Admin", "Dimension"),
+  dimensionOrderList
+);
+orderRouter.get(
+  "/labelorderlist",
+  isAuthenticated,
+  authorizeRoles("Admin", "Label"),
+  labelOrderList
+);
+orderRouter.put(
+  "/updatelabelorder/:id",
+  isAuthenticated,
+  authorizeRoles("Admin", "Label"),
+  labelUpdate
+);
+orderRouter.get(
+  "/accountantlist",
+  isAuthenticated,
+  authorizeRoles("Admin", "Accountant"),
+  AccountOrders
+);
+orderRouter.put(
+  "/amountUpdate/:id",
+  isAuthenticated,
+  authorizeRoles("Admin", "Accountant"),
+  AmountUpdate
+);

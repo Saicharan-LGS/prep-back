@@ -6,13 +6,23 @@ import {
   staffData,
   staffMebmers,
 } from "../controllers/staff.controller.js";
-import { isAuthenticated } from "../middleware/auth.js";
+import { authorizeRoles, isAuthenticated } from "../middleware/auth.js";
 
 export const staffRouter = express.Router();
 
-staffRouter.post("/staffregistration", staffRegistration);
+staffRouter.post(
+  "/staffregistration",
+  isAuthenticated,
+  authorizeRoles("Admin"),
+  staffRegistration
+);
 
 staffRouter.post("/stafflogin", staffLogin);
 
 staffRouter.get("/staffDetail", isAuthenticated, staffData);
-staffRouter.get("/staffmembers", staffMebmers)
+staffRouter.get(
+  "/staffmembers",
+  isAuthenticated,
+  authorizeRoles("Admin"),
+  staffMebmers
+);
