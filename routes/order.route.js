@@ -23,7 +23,6 @@ orderRouter.put(
 orderRouter.get(
   "/getAdminOrderDetails/:id",
   isAuthenticated,
-  authorizeRoles("Admin"),
   AdminGetSpecificOrderDetails
 );
 orderRouter.get(
