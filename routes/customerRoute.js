@@ -11,6 +11,7 @@ import {
   customerDetails,
   DeclineOrder,
   CustomerUpdateDetail,
+  CustomerGetSpecificOrderDetails,
 } from "../controllers/customerControllers.js";
 import {
   authorizeRoles,
@@ -86,3 +87,5 @@ orderRouter.put(
   upload.fields([{ name: "fnskuSend" }, { name: "labelSend" }]),
   CustomerUpdateDetail
 );
+
+orderRouter.get("/getCustomerDetailOrder/:id", isAuthenticatedCustomer, CustomerGetSpecificOrderDetails)

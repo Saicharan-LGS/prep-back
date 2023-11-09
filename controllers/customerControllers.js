@@ -432,3 +432,26 @@ export const CustomerUpdateDetail = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
+
+
+export const CustomerGetSpecificOrderDetails = CatchAsyncError(
+  async (req, res) => {
+    const orderId = req.params.id;
+    console.log(orderId);
+    // Perform a SQL query to fetch the data based on the provided ID
+    const sql = "SELECT * FROM order_table WHERE id = ?";
+    connection.query(sql, [orderId], (err, results) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal server error" });
+      } else {
+        if (results.length === 0) {
+          res.status(404).json({ error: "Data not found" });
+        } else {
+          res.status(200).json(results[0]); // Send the fetched data as a response
+        }
+      }
+    });
+  }
+);

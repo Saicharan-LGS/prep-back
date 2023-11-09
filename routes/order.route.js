@@ -16,11 +16,13 @@ export const orderRouter = express.Router();
 
 orderRouter.put(
   "/adminUpdateOrderStatus/:id",
+  isAuthenticated,
   authorizeRoles("Admin"),
   AdminUpdateOrder
 );
 orderRouter.get(
   "/getAdminOrderDetails/:id",
+  isAuthenticated,
   authorizeRoles("Admin"),
   AdminGetSpecificOrderDetails
 );
