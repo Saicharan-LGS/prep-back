@@ -109,7 +109,7 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
           success: true,
           message: "Login successful",
           token,
-          role: "customer",
+          role: "Customer",
           name,
         });
       }
