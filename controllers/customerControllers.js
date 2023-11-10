@@ -343,8 +343,8 @@ export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
         console.error("Error inserting data:", error);
         res.status(500).json({ error: "Error inserting data" });
       } else {
-        console.log("Data inserted successfully");
-        res.status(200).json({ message: "Data inserted successfully" });
+        console.log("Invoice Accepted");
+        res.status(200).json({ message: "Invoice Accepted" });
       }
     }
   );

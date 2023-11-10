@@ -173,7 +173,7 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
 
         res.status(200).json({
           success: true,
-          message: "Dimension Updated successfully",
+          message: "Label Updated successfully",
         });
       }
     );
