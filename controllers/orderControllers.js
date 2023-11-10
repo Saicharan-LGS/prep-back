@@ -320,7 +320,7 @@ export const AmountUpdate = CatchAsyncError(async (req, res, next) => {
         }
         res.status(200).json({
           success: true,
-          message: "Dimension Updated successfully",
+          message: "Invoice generated successfully",
         });
       }
     );
