@@ -12,6 +12,7 @@ import {
   DeclineOrder,
   CustomerUpdateDetail,
   CustomerGetSpecificOrderDetails,
+  GetCustomerBalance,
 } from "../controllers/customerControllers.js";
 import {
   authorizeRoles,
@@ -89,3 +90,4 @@ orderRouter.put(
 );
 
 orderRouter.get("/getCustomerDetailOrder/:id", isAuthenticatedCustomer, CustomerGetSpecificOrderDetails)
+orderRouter.get("/getAmount", isAuthenticatedCustomer, GetCustomerBalance)
