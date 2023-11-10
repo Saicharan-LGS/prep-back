@@ -161,6 +161,7 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
       status1 = 4;
     } else {
       status1 = 3;
+      return next(new ErrorHandler("Please Select The Check box", 500));
     }
     connection.query(
       "UPDATE order_table SET byid=?,fnsku_label_printed = ?,status=? WHERE id = ?",

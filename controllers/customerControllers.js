@@ -432,3 +432,45 @@ export const CustomerUpdateDetail = CatchAsyncError(async (req, res, next) => {
     return next(new ErrorHandler(error.message, 400));
   }
 });
+
+export const CustomerGetSpecificOrderDetails = CatchAsyncError(
+  async (req, res) => {
+    const orderId = req.params.id;
+    console.log(orderId);
+    // Perform a SQL query to fetch the data based on the provided ID
+    const sql = "SELECT * FROM order_table WHERE id = ?";
+    connection.query(sql, [orderId], (err, results) => {
+      if (err) {
+        console.error("Error fetching data:", err);
+        res.status(500).json({ error: "Internal server error" });
+      } else {
+        if (results.length === 0) {
+          res.status(404).json({ error: "Data not found" });
+        } else {
+          res.status(200).json(results[0]); // Send the fetched data as a response
+        }
+      }
+    });
+  }
+);
+
+export const GetCustomerBalance = CatchAsyncError(async (req, res) => {
+  const customer_id = req.user.id;
+
+  // Execute a SQL query to sum 'amount' for the given 'customer_id'
+  const query =
+    "SELECT customer_id, SUM(amount) as total_amount FROM transaction_table WHERE customer_id = ?";
+  connection.query(query, [customer_id], (err, results) => {
+    if (err) {
+      console.error("Error executing the SQL query:", err);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+
+    if (results.length === 0) {
+      return res.json({ customer_id, total_amount: 0 });
+    }
+
+    const { customer_id, total_amount } = results[0];
+    return res.json({ customer_id, total_amount });
+  });
+});
