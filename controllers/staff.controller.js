@@ -52,7 +52,6 @@ export const staffRegistration = CatchAsyncError(async (req, res, next) => {
                 if (emailError) {
                   return next(new ErrorHandler("Email could not be sent", 500));
                 }
-                console.log("Email sent:", info.response);
               });
 
               res.status(201).json({

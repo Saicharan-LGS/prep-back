@@ -5,7 +5,6 @@ import jwt from "jsonwebtoken";
 
 // authenticated user
 export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
-  console.log("called")
   const authorizationHeader = req.headers.authorization;
   if (!authorizationHeader) {
     return next(new ErrorHandler("Please provide an access token", 400));
@@ -17,9 +16,7 @@ export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
 
   try {
     const decoded = jwt.verify(access_token, process.env.SECRET_KEY);
-    console.log(decoded, "4444")
     if (!decoded) {
-      console.log("decline called")
       return next(new ErrorHandler("Access token is not valid", 400));
     }
 
@@ -37,7 +34,6 @@ export const isAuthenticated = CatchAsyncError(async (req, res, next) => {
         }
 
         const user = results[0];
-        console.log(user);
         req.user = user;
         next();
       }
@@ -65,14 +61,11 @@ export const authorizeRoles = (...roles) => {
 // authenticated customer
 export const isAuthenticatedCustomer = CatchAsyncError(
   async (req, res, next) => {
-    console.log("auth called");
-
     const authorizationHeader = req.headers.authorization;
     if (!authorizationHeader) {
       return next(new ErrorHandler("Please provide an access token", 400));
     }
     const access_token = authorizationHeader.split(" ")[1];
-    console.log(access_token);
     if (!access_token) {
       return next(
         new ErrorHandler("Please login to access this resource", 400)
@@ -81,7 +74,6 @@ export const isAuthenticatedCustomer = CatchAsyncError(
 
     try {
       const decoded = jwt.verify(access_token, process.env.SECRET_KEY);
-      console.log(decoded);
       if (!decoded) {
         return next(new ErrorHandler("Access token is not valid", 400));
       }

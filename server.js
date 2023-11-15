@@ -1,15 +1,14 @@
 import { app } from "./app.js";
 import { connection } from "./utils/db.js";
 import { createTables } from "./models/table.js";
-const port = 3009;
+import dotenv from "dotenv";
+dotenv.config();
 
-app.listen(port, () => {
-  console.log("listening on port 3009");
+app.listen(process.env.PORT, () => {
+  console.log(`listening on port ${process.env.PORT}`);
 });
 
 connection.connect((err) => {
   if (err) throw err;
-  console.log("Connected to MySQL database!");
-
   createTables();
 });

@@ -120,11 +120,9 @@ export const customerLogin = CatchAsyncError(async (req, res, next) => {
 });
 
 export const customerorder = async (req, res, next) => {
-  console.log("customer called");
   try {
     const { service, product, units, tracking_url, date, customer_id } =
       req.body;
-    console.log(req.body);
     const req_id = req.user.id;
     const name = req.user.name;
     const fnskuFiles = req.files;
@@ -142,7 +140,6 @@ export const customerorder = async (req, res, next) => {
     } else if (fnskuFile === undefined && boxlabel === undefined) {
       fnskuStatus = false;
       labelStatus = false;
-      console.log("false");
     } else if (fnskuFile === undefined) {
       fnskuStatus = false;
       labelStatus = true;
@@ -176,7 +173,6 @@ export const customerorder = async (req, res, next) => {
           success: true,
           message: "Order Placed",
         });
-        console.log("Order posted");
       }
     );
   } catch (error) {
@@ -201,7 +197,6 @@ export const customerData = CatchAsyncError(async (req, res, next) => {
 });
 
 export const customerOrderList = CatchAsyncError(async (req, res, next) => {
-  console.log("customer list called");
   try {
     const customer_id = req.user.id;
     const status = req.params.id;
@@ -261,9 +256,7 @@ export const customerOrderList = CatchAsyncError(async (req, res, next) => {
 export const AcceptOrder = CatchAsyncError(async (req, res, next) => {
   const { id } = req.params; // Get the "id" from the URL parameters
   const customer_id = req.user.id;
-  console.log(customer_id, "amount called");
   const { amount } = req.body;
-  console.log(amount);
 
   try {
     // First, update the order_table
@@ -308,7 +301,6 @@ export const AcceptOrder = CatchAsyncError(async (req, res, next) => {
 });
 
 export const DeclineOrder = CatchAsyncError(async (req, res) => {
-  console.log("decline called");
   const orderId = req.params.id;
 
   const { status } = req.body;
@@ -316,10 +308,8 @@ export const DeclineOrder = CatchAsyncError(async (req, res) => {
   const sql = "UPDATE order_table SET status = ? WHERE id = ?";
   connection.query(sql, [status, orderId], (err, result) => {
     if (err) {
-      console.error("Error updating order status:", err);
       res.status(500).json({ error: "Internal server error" });
     } else {
-      console.log("Order status updated successfully");
       res.status(200).json({ message: "Order status updated successfully" });
     }
   });
@@ -328,9 +318,7 @@ export const DeclineOrder = CatchAsyncError(async (req, res) => {
 export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
   // Get the "id" from the URL parameters
   const customer_id = req.user.id;
-  console.log(customer_id, "amount called");
   const { amount } = req.body;
-  console.log(amount);
   // Create the INSERT SQL query with the "id" from the request parameters
   const insertQuery = `INSERT INTO transaction_table ( customer_id, amount, type) VALUES (?, ?, ?)`;
 
@@ -340,10 +328,8 @@ export const CustomerAddAmount = CatchAsyncError(async (req, res) => {
     [customer_id, `+${amount}`, "credit"],
     (error, results) => {
       if (error) {
-        console.error("Error inserting data:", error);
         res.status(500).json({ error: "Error inserting data" });
       } else {
-        console.log("Invoice Accepted");
         res.status(200).json({ message: "Invoice Accepted" });
       }
     }
@@ -393,7 +379,6 @@ export const CustomerUpdateDetail = CatchAsyncError(async (req, res, next) => {
       labelStatus = true;
     }
 
-    console.log(fnskuFile, boxlabel);
     connection.query(
       `UPDATE order_table SET 
            name=?,
@@ -425,7 +410,6 @@ export const CustomerUpdateDetail = CatchAsyncError(async (req, res, next) => {
           success: true,
           message: "Order updated",
         });
-        console.log("Order updated");
       }
     );
   } catch (error) {
@@ -442,7 +426,6 @@ export const CustomerGetSpecificOrderDetails = CatchAsyncError(
     const sql = "SELECT * FROM order_table WHERE id = ? AND customer_id = ?";
     connection.query(sql, [orderId, customer_id], (err, results) => {
       if (err) {
-        console.error("Error fetching data:", err);
         res.status(500).json({ error: "Internal server error" });
       } else {
         if (results.length === 0) {
@@ -463,7 +446,6 @@ export const GetCustomerBalance = CatchAsyncError(async (req, res) => {
     "SELECT customer_id, SUM(amount) as total_amount FROM transaction_table WHERE customer_id = ?";
   connection.query(query, [customer_id], (err, results) => {
     if (err) {
-      console.error("Error executing the SQL query:", err);
       return res.status(500).json({ error: "Internal Server Error" });
     }
 

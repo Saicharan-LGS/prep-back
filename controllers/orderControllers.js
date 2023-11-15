@@ -12,7 +12,7 @@ export const AdminUpdateOrder = CatchAsyncError(async (req, res) => {
   connection.query(sql, [status, orderId], (err, result) => {
     if (err) {
       console.error("Error updating order status:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     } else {
       console.log("Order status updated successfully");
       res.status(200).json({ message: "Order status updated successfully" });
@@ -23,16 +23,14 @@ export const AdminUpdateOrder = CatchAsyncError(async (req, res) => {
 export const AdminGetSpecificOrderDetails = CatchAsyncError(
   async (req, res) => {
     const orderId = req.params.id;
-    console.log(orderId);
     // Perform a SQL query to fetch the data based on the provided ID
     const sql = "SELECT * FROM order_table WHERE id = ?";
     connection.query(sql, [orderId], (err, results) => {
       if (err) {
-        console.error("Error fetching data:", err);
-        res.status(500).json({ error: "Internal server error" });
+        res.status(500).json({ message: "Internal server error" });
       } else {
         if (results.length === 0) {
-          res.status(404).json({ error: "Data not found" });
+          res.status(404).json({ message: "Data not found" });
         } else {
           res.status(200).json(results[0]); // Send the fetched data as a response
         }
@@ -43,12 +41,11 @@ export const AdminGetSpecificOrderDetails = CatchAsyncError(
 
 export const GetOrders = CatchAsyncError(async (req, res) => {
   const status = req.params.status;
-  console.log(status);
 
   if (!status) {
     return res
       .status(400)
-      .json({ error: "Status is required in the request body" });
+      .json({ message: "Status is required in the request body" });
   }
   let sql;
   let queryParameters;
@@ -62,8 +59,7 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
   }
   connection.query(sql, queryParameters, (err, results) => {
     if (err) {
-      console.error("Error fetching data:", err);
-      res.status(500).json({ error: "Internal server error" });
+      res.status(500).json({ message: "Internal server error" });
     } else {
       console.log(results);
       res.status(200).json({ results: results }); // Send the fetched data as a response
@@ -72,7 +68,6 @@ export const GetOrders = CatchAsyncError(async (req, res) => {
 });
 
 export const dimensionUpdate = CatchAsyncError(async (req, res, next) => {
-  console.log("dim called");
   try {
     const { length, width, height, weight } = req.body;
     const req_id = req.user.id;
@@ -124,13 +119,11 @@ export const dimensionOrderList = CatchAsyncError(async (req, res, next) => {
 });
 
 export const labelOrderList = CatchAsyncError(async (req, res, next) => {
-  console.log("clled");
   try {
     connection.query(
       "SELECT * FROM order_table WHERE status= 3",
       async (error, results) => {
         if (error) {
-          console.log(error);
           return next(new ErrorHandler(error.message, 500)); // Handle database query error
         }
         console.log(results);
@@ -154,7 +147,6 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
   try {
     const { status } = req.body;
     const id = req.params.id;
-    console.log(id);
     const req_id = req.user.id;
     let status1;
     if (status === true) {
@@ -183,7 +175,6 @@ export const labelUpdate = CatchAsyncError(async (req, res, next) => {
 });
 
 export const AccountOrders = CatchAsyncError(async (req, res, next) => {
-  console.log("called acconuntant");
   try {
     connection.query(
       "SELECT * FROM order_table WHERE status = 4",
@@ -211,7 +202,6 @@ export const AccountOrders = CatchAsyncError(async (req, res, next) => {
 
 export const AdminUpdateOrderDetail = CatchAsyncError(
   async (req, res, next) => {
-    console.log("admin upload called");
     console.log(req.body);
     try {
       const orderId = req.params.id; // Get the order ID from URL parameters
@@ -285,7 +275,6 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
         ],
         (error, results) => {
           if (error) {
-            console.log(error);
             return next(new ErrorHandler(error.message, 500));
           }
           if (results.affectedRows === 0) {
@@ -295,7 +284,6 @@ export const AdminUpdateOrderDetail = CatchAsyncError(
             success: true,
             message: "Order updated",
           });
-          console.log("Order updated");
         }
       );
     } catch (error) {
@@ -308,7 +296,6 @@ export const AmountUpdate = CatchAsyncError(async (req, res, next) => {
   try {
     const { amount } = req.body;
     const id = req.params.id;
-    console.log(id);
     const req_id = req.user.id;
 
     connection.query(
