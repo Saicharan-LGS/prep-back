@@ -436,10 +436,11 @@ export const CustomerUpdateDetail = CatchAsyncError(async (req, res, next) => {
 export const CustomerGetSpecificOrderDetails = CatchAsyncError(
   async (req, res) => {
     const orderId = req.params.id;
-    console.log(orderId);
+    const customer_id = req.user.id;
+
     // Perform a SQL query to fetch the data based on the provided ID
-    const sql = "SELECT * FROM order_table WHERE id = ?";
-    connection.query(sql, [orderId], (err, results) => {
+    const sql = "SELECT * FROM order_table WHERE id = ? AND customer_id = ?";
+    connection.query(sql, [orderId, customer_id], (err, results) => {
       if (err) {
         console.error("Error fetching data:", err);
         res.status(500).json({ error: "Internal server error" });
