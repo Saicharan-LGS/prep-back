@@ -23,6 +23,7 @@ export const orderTable = `CREATE TABLE IF NOT EXISTS order_table (
     amount FLOAT,
     drop_off BOOLEAN,
     payment_status BOOLEAN,
-    instructions VARCHAR(100)
+    instructions VARCHAR(100),
+    ip_address VARCHAR(100)
   );
 `;

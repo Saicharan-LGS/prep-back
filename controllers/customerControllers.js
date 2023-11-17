@@ -5,6 +5,7 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import bcrypt from "bcrypt";
 import nodemailerConfig from "../utils/nodemailerConfig.js";
+import requestIp from "request-ip";
 
 dotenv.config();
 
@@ -125,6 +126,8 @@ export const customerorder = async (req, res, next) => {
       req.body;
     const req_id = req.user.id;
     const name = req.user.name;
+    const ipAddress = req.clientIp;
+
     const fnskuFiles = req.files;
     const fnskuFile = fnskuFiles["fnskuSend"]
       ? fnskuFiles["fnskuSend"][0].filename
@@ -148,7 +151,7 @@ export const customerorder = async (req, res, next) => {
       labelStatus = false;
     }
     connection.query(
-      "INSERT INTO order_table (byid, customer_id, name, service, product, unit, tracking_url, fnsku, label, date, status,fnsku_status,label_status) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?,?)",
+      "INSERT INTO order_table (byid, customer_id, name, service, product, unit, tracking_url, fnsku, label, date, status,fnsku_status,label_status,ip_address) VALUES (?, ?, ?, ?,?, ?, ?, ?, ?,?,?,?,?,?)",
       [
         req_id,
         customer_id,
@@ -163,6 +166,7 @@ export const customerorder = async (req, res, next) => {
         0,
         fnskuStatus,
         labelStatus,
+        ipAddress,
       ],
       (error) => {
         if (error) {

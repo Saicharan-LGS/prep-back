@@ -3,6 +3,7 @@ import cors from "cors";
 import { customerRouter } from "./routes/customerRoute.js";
 import { staffRouter } from "./routes/staff.route.js";
 import { orderRouter } from "./routes/order.route.js";
+import requestIp from "request-ip";
 
 export const app = express();
 app.use(express.json());
@@ -13,6 +14,8 @@ import ErrorMiddleware from "./middleware/error.js";
 
 app.use(express.urlencoded({ extended: true }));
 app.use(bodyParser.json());
+
+app.use(requestIp.mw());
 app.use("/api/v1", customerRouter, staffRouter, orderRouter);
 
 //testing api
